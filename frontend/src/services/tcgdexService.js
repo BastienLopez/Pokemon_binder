@@ -3,6 +3,45 @@ const TCGDEX_BASE_URL = 'https://api.tcgdex.net/v2/fr';
 
 class TCGdexService {
   /**
+   * Récupère la liste de toutes les séries Pokémon TCG en français
+   * @returns {Promise<Array>} Liste des séries
+   */
+  static async getSeries() {
+    try {
+      const response = await fetch(`${TCGDEX_BASE_URL}/series`);
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Erreur lors de la récupération des séries:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère la liste des extensions d'une série spécifique
+   * @param {string} serieId - L'ID de la série
+   * @returns {Promise<Array>} Liste des extensions de la série
+   */
+  static async getSetsBySerie(serieId) {
+    if (!serieId) {
+      throw new Error('L\'ID de la série est requis');
+    }
+
+    try {
+      const response = await fetch(`${TCGDEX_BASE_URL}/sets?serie=${serieId}`);
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des extensions pour la série ${serieId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Récupère la liste de toutes les extensions Pokémon TCG en français
    * @returns {Promise<Array>} Liste des extensions
    */

@@ -4,36 +4,68 @@ import TCGdexService from '../services/tcgdexService';
 import './Cards.css';
 
 const Cards = ({ showHeader = true }) => {
+  const [series, setSeries] = useState([]);
+  const [selectedSerie, setSelectedSerie] = useState('');
   const [sets, setSets] = useState([]);
   const [selectedSet, setSelectedSet] = useState('');
   const [binderSize, setBinderSize] = useState('3x3');
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [loadingSets, setLoadingSets] = useState(true);
+  const [loadingSeries, setLoadingSeries] = useState(true);
+  const [loadingSets, setLoadingSets] = useState(false);
   const [filters, setFilters] = useState({
     name: '',
     rarity: ''
   });
 
-  // Charger la liste des extensions au montage du composant
+  // Charger la liste des séries au montage du composant
   useEffect(() => {
-    fetchSets();
+    fetchSeries();
   }, []);
 
-  const fetchSets = async () => {
+  // Charger les extensions quand une série est sélectionnée
+  useEffect(() => {
+    if (selectedSerie) {
+      fetchSetsBySerie(selectedSerie);
+    } else {
+      setSets([]);
+      setSelectedSet('');
+    }
+  }, [selectedSerie]);
+
+  const fetchSeries = async () => {
     try {
-      setLoadingSets(true);
-      const data = await TCGdexService.getSets();
-      setSets(data);
+      setLoadingSeries(true);
+      const data = await TCGdexService.getSeries();
+      setSeries(data);
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Impossible de charger la liste des extensions');
+      alert('Impossible de charger la liste des séries');
+    } finally {
+      setLoadingSeries(false);
+    }
+  };
+
+  const fetchSetsBySerie = async (serieId) => {
+    try {
+      setLoadingSets(true);
+      const data = await TCGdexService.getSetsBySerie(serieId);
+      setSets(data);
+      setSelectedSet(''); // Reset l'extension sélectionnée
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Impossible de charger la liste des extensions pour cette série');
+      setSets([]);
     } finally {
       setLoadingSets(false);
     }
   };
 
   const fetchCards = async () => {
+    if (!selectedSerie) {
+      alert('Veuillez sélectionner une série');
+      return;
+    }
     if (!selectedSet) {
       alert('Veuillez sélectionner une extension');
       return;
@@ -80,15 +112,36 @@ const Cards = ({ showHeader = true }) => {
 
         <div className="cards-controls">
           <div className="control-group">
+            <label htmlFor="serie-select">Série :</label>
+            <select 
+              id="serie-select"
+              value={selectedSerie} 
+              onChange={(e) => setSelectedSerie(e.target.value)}
+              disabled={loadingSeries}
+            >
+              <option value="">
+                {loadingSeries ? 'Chargement...' : 'Sélectionnez une série'}
+              </option>
+              {series.map(serie => (
+                <option key={serie.id} value={serie.id}>
+                  {serie.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="control-group">
             <label htmlFor="set-select">Extension :</label>
             <select 
               id="set-select"
               value={selectedSet} 
               onChange={(e) => setSelectedSet(e.target.value)}
-              disabled={loadingSets}
+              disabled={loadingSets || !selectedSerie}
             >
               <option value="">
-                {loadingSets ? 'Chargement...' : 'Sélectionnez une extension'}
+                {loadingSets ? 'Chargement...' : 
+                 !selectedSerie ? 'Sélectionnez d\'abord une série' : 
+                 'Sélectionnez une extension'}
               </option>
               {sets.map(set => (
                 <option key={set.id} value={set.id}>
@@ -114,9 +167,9 @@ const Cards = ({ showHeader = true }) => {
           <button 
             className="generate-btn" 
             onClick={fetchCards}
-            disabled={!selectedSet || loading}
+            disabled={!selectedSerie || !selectedSet || loading}
           >
-            {loading ? 'Génération...' : 'Générer le Binder'}
+            {loading ? 'Chargement...' : 'Afficher la série'}
           </button>
         </div>
 
@@ -182,7 +235,7 @@ const Cards = ({ showHeader = true }) => {
           </div>
         )}
 
-        {!loading && cards.length === 0 && selectedSet && (
+        {!loading && cards.length === 0 && selectedSerie && selectedSet && (
           <div className="no-cards">
             <p>Aucune carte trouvée pour cette extension.</p>
           </div>

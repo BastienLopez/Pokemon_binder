@@ -60,16 +60,16 @@ Créer le système d'inscription / connexion avec token d'authentification.
 Utiliser le listing des cartes Pokémon TCG par extension.
 
 ### ✅ Tâches :
-* [ ] Créer une page `/cartes` cf \listing.png 
-* [ ] Recuperer les infos cartes, extensions, images cartes etc via l'API https://tcgdex.dev/
-* [ ] Page  `/cartes`: 
+* [x] Créer une page `/cartes` cf \listing.png 
+* [x] Recuperer les infos cartes, extensions, images cartes etc via l'API https://tcgdex.dev/
+* [x] Page  `/cartes`: 
   - Select l'extension
   - Select Binder Page Size 3x3 ou 4x4 (scroll infi jusqu'a fin de toutes les cartes de l'extension)
   - bouton generer bider qui call api de l'extension choisi et affiche tt les cartes voulu en dessous comme sur l'img
-* [ ] Intégrer ou connecter le module de listing
-* [ ] Ajout filtres basiques : extension, rareté, nom
-* [ ] (Facultatif) Affichage pagination / infini scroll
-* [ ] Recuperer les infos cartes, extensions, images cartes etc via https://tcgdex.dev/
+* [x] Intégrer ou connecter le module de listing
+* [x] Ajout filtres basiques : extension, rareté, nom
+* [x] (Facultatif) Affichage pagination / infini scroll
+* [x] Recuperer les infos cartes, extensions, images cartes etc via https://tcgdex.dev/
 
 ---
 
