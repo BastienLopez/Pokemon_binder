@@ -232,3 +232,6 @@ logs
 # Build directories
 build/
 dist/
+
+.benchmarks/
+.pytest.ini

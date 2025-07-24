@@ -47,9 +47,50 @@
 .auth-links {
   display: flex;
   gap: 1rem;
+  align-items: center;
+}
+
+.btn-signup {
+  background-color: #667eea;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.btn-signup:hover {
+  background-color: #5a6fd8;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   margin-left: 1rem;
   padding-left: 1rem;
   border-left: 1px solid #34495e;
+}
+
+.user-name {
+  color: #ecf0f1;
+  font-weight: 500;
+}
+
+.btn-logout {
+  background: transparent;
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #e74c3c;
+  color: white;
 }
 
 @media (max-width: 768px) {
@@ -63,7 +104,7 @@
     justify-content: center;
   }
   
-  .auth-links {
+  .user-menu {
     margin-left: 0;
     padding-left: 0;
     border-left: none;

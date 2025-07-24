@@ -1,8 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './Header.css';
 
 const Header = () => {
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <header className="header">
       <div className="container">
@@ -12,13 +19,26 @@ const Header = () => {
           </Link>
           <nav className="nav">
             <Link to="/" className="nav-link">Accueil</Link>
-            <Link to="/cartes" className="nav-link">Cartes</Link>
-            <Link to="/mes-cartes" className="nav-link">Mes Cartes</Link>
-            {/* Ces liens seront ajoutés en Phase 2 */}
-            <div className="auth-links">
-              <span className="nav-link disabled">Connexion</span>
-              <span className="nav-link disabled">Inscription</span>
-            </div>
+            
+            {isAuthenticated ? (
+              <>
+                <Link to="/cartes" className="nav-link">Cartes</Link>
+                <Link to="/mes-cartes" className="nav-link">Mes Cartes</Link>
+                <div className="user-menu">
+                  <span className="user-name">👋 {user?.username}</span>
+                  <button onClick={handleLogout} className="btn btn-logout">
+                    Déconnexion
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="auth-links">
+                  <Link to="/login" className="nav-link">Connexion</Link>
+                  <Link to="/signup" className="btn btn-signup">Inscription</Link>
+                </div>
+              </>
+            )}
           </nav>
         </div>
       </div>

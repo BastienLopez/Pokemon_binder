@@ -1,0 +1,14 @@
+# Requirements pour les tests
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-html==4.1.1
+requests==2.31.0
+httpx==0.25.2
+
+# Pour les tests backend
+fastapi[all]==0.104.1
+pydantic==2.5.0
+
+# Pour générer des rapports
+coverage==7.3.2

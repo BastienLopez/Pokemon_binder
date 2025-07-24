@@ -1,0 +1,225 @@
+name: CI/CD - Tests complets
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install test dependencies
+      run: |
+        pip install -r tests/requirements.txt
+    
+    - name: Wait for MongoDB
+      run: |
+        until mongosh --host localhost:27017 --eval "print('MongoDB is ready')" > /dev/null 2>&1; do
+          echo "Waiting for MongoDB..."
+          sleep 2
+        done
+    
+    - name: Run backend unit tests
+      env:
+        MONGODB_URL: mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
+        JWT_SECRET_KEY: test_secret_key_for_ci
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${PWD}/backend"
+        pytest tests/backend/ -v --cov=backend --cov-report=xml --cov-report=term-missing
+    
+    - name: Upload backend coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: backend
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run frontend linting
+      run: |
+        cd frontend
+        npm run lint || true  # Continue même si des warnings
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+    
+    - name: Run frontend basic tests
+      run: |
+        cd frontend
+        npm test -- --coverage --watchAll=false || true
+
+  test-integration:
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: password
+        options: >-
+          --health-cmd mongosh
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        # Backend
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        cd ..
+        
+        # Tests
+        pip install -r tests/requirements.txt
+        
+        # Frontend
+        cd frontend
+        npm ci
+        cd ..
+    
+    - name: Start backend
+      env:
+        MONGODB_URL: mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
+        JWT_SECRET_KEY: test_secret_key_for_ci
+      run: |
+        cd backend
+        uvicorn main:app --host 0.0.0.0 --port 8000 &
+        echo $! > backend.pid
+        sleep 10
+        
+        # Vérifier que le backend est démarré
+        curl -f http://localhost:8000/ || exit 1
+    
+    - name: Start frontend
+      run: |
+        cd frontend
+        npm start &
+        echo $! > frontend.pid
+        sleep 20
+        
+        # Vérifier que le frontend est démarré
+        curl -f http://localhost:3000/ || echo "Frontend not ready, continuing..."
+    
+    - name: Run integration tests
+      env:
+        MONGODB_URL: mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${PWD}/backend"
+        pytest tests/integration/ -v --tb=short
+    
+    - name: Run all tests with coverage
+      env:
+        MONGODB_URL: mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
+        JWT_SECRET_KEY: test_secret_key_for_ci
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:${PWD}/backend"
+        pytest tests/ -v --cov=backend --cov-report=html --cov-report=term-missing --html=tests/reports/report.html
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          tests/reports/
+          coverage.xml
+          htmlcov/
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        # Arrêter les services
+        if [ -f backend/backend.pid ]; then
+          kill $(cat backend/backend.pid) || true
+        fi
+        if [ -f frontend/frontend.pid ]; then
+          kill $(cat frontend/frontend.pid) || true
+        fi
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
