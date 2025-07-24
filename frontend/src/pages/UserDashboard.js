@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import MyCards from './MyCards';
 import MyBinders from './MyBinders';
+import Cards from './Cards';
 import './UserDashboard.css';
 
 const UserDashboard = () => {
@@ -57,6 +58,8 @@ const UserDashboard = () => {
         );
       case 'cards':
         return <MyCards />;
+      case 'listing':
+        return <Cards showHeader={false} />;
       case 'binders':
         return <MyBinders />;
       default:
@@ -92,6 +95,14 @@ const UserDashboard = () => {
           >
             <span className="nav-icon">🃏</span>
             Mes Cartes
+          </button>
+          
+          <button
+            className={`nav-item ${activeSection === 'listing' ? 'active' : ''}`}
+            onClick={() => setActiveSection('listing')}
+          >
+            <span className="nav-icon">📋</span>
+            Listing des Cartes
           </button>
           
           <button
