@@ -9,7 +9,7 @@ const MyCards = () => {
   const { user } = useAuth();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [binderSize, setBinderSize] = useState('4x4'); // Ajout du state pour la taille de grille
+  const [binderSize, setBinderSize] = useState('4x4');
   const [selectedCard, setSelectedCard] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -46,8 +46,7 @@ const MyCards = () => {
       const userCards = await UserCardsService.getUserCards();
       setCards(userCards);
     } catch (error) {
-      // console.error('Erreur lors du chargement des cartes:', error);
-      // Ici on pourrait ajouter une notification d'erreur
+      console.error('Erreur lors du chargement des cartes:', error);
     } finally {
       setLoading(false);
     }
@@ -69,10 +68,8 @@ const MyCards = () => {
       setShowEditModal(false);
       setSelectedCard(null);
       await fetchUserCards();
-      // Ici on pourrait ajouter une notification de succès
     } catch (error) {
-      // console.error('Erreur lors de la mise à jour:', error);
-      // Ici on pourrait ajouter une notification d'erreur
+      console.error('Erreur lors de la mise à jour:', error);
     }
   };
 
@@ -91,11 +88,9 @@ const MyCards = () => {
       await UserCardsService.deleteUserCard(cardId);
       await fetchUserCards();
       setConfirmModal({ ...confirmModal, isOpen: false });
-      // Ici on pourrait ajouter une notification de succès
     } catch (error) {
-      // console.error('Erreur lors de la suppression:', error);
+      console.error('Erreur lors de la suppression:', error);
       setConfirmModal({ ...confirmModal, isOpen: false });
-      // Ici on pourrait ajouter une notification d'erreur
     }
   };
 
@@ -112,21 +107,13 @@ const MyCards = () => {
   };
 
   const getCardImageUrl = (card) => {
-    // Priorité aux images TCGdx haute qualité
-    if (card.card_id) {
-      try {
-        return TCGdexService.getHighQualityImageUrl({ id: card.card_id });
-      } catch (error) {
-        console.warn('Erreur TCGdx pour la carte:', card.card_id);
-      }
-    }
-    
-    // Fallback sur l'image stockée
+    // Priorité à l'image stockée depuis TCGdx
     if (card.card_image && card.card_image !== '/placeholder-card.png') {
-      return card.card_image;
+      // Utiliser le service TCGdx pour la haute qualité
+      return TCGdexService.getHighQualityImageUrl({ image: card.card_image });
     }
     
-    // Image par défaut
+    // Fallback : image par défaut
     return '/placeholder-card.png';
   };
 
@@ -283,12 +270,16 @@ const MyCards = () => {
                 </select>
               </div>
               
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowEditModal(false)}>
-                  Annuler
+              <div className="form-actions">
+                <button type="submit" className="btn-save">
+                  Sauvegarder
                 </button>
-                <button type="submit" className="btn-confirm">
-                  Mettre à jour
+                <button 
+                  type="button" 
+                  className="btn-cancel"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  Annuler
                 </button>
               </div>
             </form>
@@ -304,8 +295,6 @@ const MyCards = () => {
         type={confirmModal.type}
         onConfirm={confirmModal.onConfirm}
         onCancel={closeConfirmModal}
-        confirmText="Supprimer"
-        cancelText="Annuler"
       />
     </div>
   );
