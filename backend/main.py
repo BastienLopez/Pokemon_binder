@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 from database import connect_to_mongo, close_mongo_connection
-from routers import auth, users
+from routers import auth, users, user_cards
 
 # Charger les variables d'environnement
 load_dotenv()
@@ -37,6 +37,7 @@ app.add_middleware(
 # Inclusion des routers
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(user_cards.router, prefix="/user", tags=["user-cards"])
 
 @app.get("/")
 async def root():

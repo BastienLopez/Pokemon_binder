@@ -73,27 +73,36 @@ Utiliser le listing des cartes Pokémon TCG par extension.
 
 * [ ] Add un bouton en bas a droite du nom de chaque carte qui va permettre de l'ajouter a nos cartes (sur la page 'mes cartes', donc select l'id de la carte a ajouté, l'add pour qu'elle soit lié a la partie 'cartes' de l'user connecté (il faut le stocker en bdd))
 
----
 
-## 📂 Phase 4 — "Mes cartes" (collection utilisateur)
+## 📂 Phase 4 — "Mes cartes" (collection utilisateur) 
 ### 🎯 Objectif :
-Permettre à l'utilisateur de gérer ses cartes.
+Permettre à l'utilisateur de gérer ses cartes personnelles depuis la page `/mes-cartes` (http://localhost:3000/user?id=6881f8ef09c3053f34c8cf8f).
 
 ### ✅ Tâches :
 
-* [ ] Back :
-  * [ ] Modèle `UserCard` lié à l'`UserId` (quantité, état, version…)
-  * [ ] Routes API :
-    * `GET /user/cards`
-    * `POST /user/cards`
-    * `PATCH /user/cards/:id`
-    * `DELETE /user/cards/:id`
+* [x] Back :
+  * [x] Modèle `UserCard` lié à l'`UserId` (_id) (quantité, état, version…) ✅
+  * [x] Routes API : ✅
+    * `GET /user/cards` — Récupérer toutes les cartes de l'utilisateur ✅
+    * `POST /user/cards` — Ajouter une carte à la collection de l'utilisateur ✅
+    * `PATCH /user/cards/:id` — Modifier les infos d'une carte possédée (quantité, état, version…) ✅
+    * `DELETE /user/cards/:id` — Supprimer une carte de la collection ✅
 
-* [ ] Front :
-  * [ ] Page `/mes-cartes`
-  * [ ] Affichage liste des cartes possédées via les cartes save dans la bdd suite a l'ajout des cartes fait avant via l'ajout de carte de Listing des cartes
-  * [ ] Formulaire d'ajout depuis base globale
-  * [ ] Boutons modifier / supprimer
+* [x] Front :
+  * [x] Page `/mes-cartes` accessible via le menu utilisateur ✅
+  * [x] Affichage de la liste des cartes possédées (infos carte, quantité, état, version…) ✅
+  * [x] Bouton "Ajouter" (depuis la page listing ou formulaire dédié) ✅
+  * [x] Formulaire d'ajout d'une carte depuis la base globale (recherche, sélection, quantité, état…) ✅
+  * [x] Boutons "modifier" et "supprimer" sur chaque carte de la collection ✅
+  * [x] Synchronisation en temps réel après ajout/modification/suppression ✅
+  * [x] **Bonus** : Notifications élégantes au lieu d'alertes ✅
+  * [x] **Bonus** : Modales de confirmation professionnelles ✅
+  * [x] **Bonus** : Images haute qualité via API TCGdx ✅
+  * [ ] Filtre : 
+        - nom
+        - serie / extensions
+        - taille de binder 3x3 4x4 ou 5x5
+        - prix
 
 ---
 

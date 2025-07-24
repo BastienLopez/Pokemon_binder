@@ -4,6 +4,7 @@ from typing import Optional
 from models.user import UserInDB
 from utils.auth import verify_token
 from services.user_service import UserService
+from services.user_card_service import UserCardService
 from database import get_database
 
 security = HTTPBearer()
@@ -12,6 +13,11 @@ async def get_user_service() -> UserService:
     """Obtenir le service utilisateur"""
     database = await get_database()
     return UserService(database)
+
+async def get_user_card_service() -> UserCardService:
+    """Obtenir le service des cartes utilisateur"""
+    database = await get_database()
+    return UserCardService(database)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),

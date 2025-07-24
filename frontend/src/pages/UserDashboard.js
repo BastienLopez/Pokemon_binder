@@ -1,14 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import MyCards from './MyCards';
 import MyBinders from './MyBinders';
 import Cards from './Cards';
+import UserCardsService from '../services/userCardsService';
 import './UserDashboard.css';
 
 const UserDashboard = () => {
   const { user, logout } = useAuth();
   const [activeSection, setActiveSection] = useState('profile');
+  const [cardsCount, setCardsCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      fetchCardsCount();
+    }
+  }, [user]);
+
+  const fetchCardsCount = async () => {
+    try {
+      const userCards = await UserCardsService.getUserCards();
+      const totalCards = userCards.reduce((total, card) => total + card.quantity, 0);
+      setCardsCount(totalCards);
+    } catch (error) {
+      console.error('Erreur lors du chargement du nombre de cartes:', error);
+    }
+  };
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -41,7 +59,7 @@ const UserDashboard = () => {
               </div>
               <div className="profile-stats">
                 <div className="stat-card">
-                  <div className="stat-number">0</div>
+                  <div className="stat-number">{cardsCount}</div>
                   <div className="stat-label">Cartes</div>
                 </div>
                 <div className="stat-card">

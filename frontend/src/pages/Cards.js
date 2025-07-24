@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import TCGdexService from '../services/tcgdexService';
+import UserCardsService from '../services/userCardsService';
+import Notification from '../components/Notification';
+import { useAuth } from '../contexts/AuthContext';
 import './Cards.css';
 
 const Cards = ({ showHeader = true }) => {
+  const { user } = useAuth();
   const [series, setSeries] = useState([]);
   const [selectedSerie, setSelectedSerie] = useState('');
   const [sets, setSets] = useState([]);
@@ -16,6 +20,12 @@ const Cards = ({ showHeader = true }) => {
   const [filters, setFilters] = useState({
     name: '',
     rarity: ''
+  });
+  const [currentSet, setCurrentSet] = useState(null);
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
   });
 
   // Charger la liste des séries au montage du composant
@@ -75,12 +85,65 @@ const Cards = ({ showHeader = true }) => {
       setLoading(true);
       const data = await TCGdexService.getCardsBySet(selectedSet);
       setCards(data);
+      
+      // Récupérer les infos de l'extension pour l'ajout à la collection
+      const selectedSetInfo = sets.find(set => set.id === selectedSet);
+      setCurrentSet(selectedSetInfo);
     } catch (error) {
       console.error('Erreur:', error);
       alert('Impossible de charger les cartes de cette extension');
     } finally {
       setLoading(false);
     }
+  };
+
+  const addToCollection = async (card) => {
+    if (!user) {
+      setNotification({
+        isVisible: true,
+        message: 'Vous devez être connecté pour ajouter des cartes',
+        type: 'error'
+      });
+      return;
+    }
+
+    if (!currentSet) {
+      setNotification({
+        isVisible: true,
+        message: 'Informations sur l\'extension manquantes',
+        type: 'error'
+      });
+      return;
+    }
+
+    try {
+      const cardData = UserCardsService.formatCardForCollection(card, currentSet, 1);
+      await UserCardsService.addUserCard(cardData);
+      setNotification({
+        isVisible: true,
+        message: `"${card.name}" ajoutée à votre collection !`,
+        type: 'success'
+      });
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout:', error);
+      if (error.message.includes('Token')) {
+        setNotification({
+          isVisible: true,
+          message: 'Vous devez être connecté pour ajouter des cartes',
+          type: 'error'
+        });
+      } else {
+        setNotification({
+          isVisible: true,
+          message: 'Erreur lors de l\'ajout de la carte à votre collection',
+          type: 'error'
+        });
+      }
+    }
+  };
+
+  const closeNotification = () => {
+    setNotification({ ...notification, isVisible: false });
   };
 
   const filteredCards = TCGdexService.filterCards(cards, filters);
@@ -211,7 +274,7 @@ const Cards = ({ showHeader = true }) => {
         )}
 
         {filteredCards.length > 0 && (
-          <div className={`cards-grid ${getGridClass()}`}>
+          <div key={binderSize} className={`cards-grid ${getGridClass()}`}>
             {filteredCards.map(card => (
               <div key={card.id} className="card-item">
                 <div className="card-image-container">
@@ -229,6 +292,16 @@ const Cards = ({ showHeader = true }) => {
                   <h4>{card.name}</h4>
                   <p>#{card.localId}</p>
                   {card.rarity && <p className="rarity">Rareté: {card.rarity}</p>}
+                  
+                  {user && (
+                    <button 
+                      className="add-to-collection-btn"
+                      onClick={() => addToCollection(card)}
+                      title="Ajouter à ma collection"
+                    >
+                      + Collection
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -241,6 +314,15 @@ const Cards = ({ showHeader = true }) => {
           </div>
         )}
       </div>
+      
+      {/* Notification */}
+      <Notification
+        isVisible={notification.isVisible}
+        message={notification.message}
+        type={notification.type}
+        onClose={closeNotification}
+        duration={3000}
+      />
     </>
   );
 };
