@@ -23,12 +23,6 @@ const MyCards = () => {
     onConfirm: null,
     type: 'warning'
   });
-  
-  // États pour les filtres
-  const [filters, setFilters] = useState({
-    name: '',
-    setName: ''
-  });
 
   const conditions = [
     'Mint',
@@ -105,12 +99,11 @@ const MyCards = () => {
   };
 
   const getTotalCards = () => {
-    const filteredCards = getFilteredCards();
-    return filteredCards.reduce((total, card) => total + card.quantity, 0);
+    return cards.reduce((total, card) => total + card.quantity, 0);
   };
 
   const getUniqueCards = () => {
-    return getFilteredCards().length;
+    return cards.length;
   };
 
   const getCardImageUrl = (card) => {
@@ -133,32 +126,6 @@ const MyCards = () => {
     }
   };
 
-  // Fonction de filtrage des cartes
-  const getFilteredCards = () => {
-    return cards.filter(card => {
-      const matchesName = !filters.name || 
-        card.card_name.toLowerCase().includes(filters.name.toLowerCase());
-      
-      const matchesSet = !filters.setName || 
-        card.set_name.toLowerCase().includes(filters.setName.toLowerCase());
-      
-      return matchesName && matchesSet;
-    });
-  };
-
-  // Obtenir la liste unique des extensions pour le filtre
-  const getUniqueSetNames = () => {
-    const setNames = cards.map(card => card.set_name).filter(Boolean);
-    return [...new Set(setNames)].sort();
-  };
-
-  const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterName]: value
-    }));
-  };
-
   if (loading) {
     return (
       <div className="my-cards-container">
@@ -174,55 +141,9 @@ const MyCards = () => {
       <div className="my-cards-header">
         <h1>Mes Cartes</h1>
         <p>Bienvenue {user?.username} ! Voici votre collection personnelle.</p>
-        <div className="collection-stats">
-          <div className="stat-item">
-            <span className="stat-number">{getTotalCards()}</span>
-            <span className="stat-label">
-              Cartes affichées
-              {(filters.name || filters.setName) && ` / ${cards.reduce((total, card) => total + card.quantity, 0)} total`}
-            </span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">{getUniqueCards()}</span>
-            <span className="stat-label">
-              Cartes uniques
-              {(filters.name || filters.setName) && ` / ${cards.length} total`}
-            </span>
-          </div>
-        </div>
-
-        {/* Filtres */}
-        <div className="filters-section">
-          <h3>Filtres</h3>
-          <div className="filters-row">
-            <div className="filter-group">
-              <label htmlFor="name-filter">Nom :</label>
-              <input
-                type="text"
-                id="name-filter"
-                placeholder="Rechercher par nom..."
-                value={filters.name}
-                onChange={(e) => handleFilterChange('name', e.target.value)}
-              />
-            </div>
-            
-            <div className="filter-group">
-              <label htmlFor="set-filter">Série / Extension :</label>
-              <select
-                id="set-filter"
-                value={filters.setName}
-                onChange={(e) => handleFilterChange('setName', e.target.value)}
-              >
-                <option value="">Toutes les extensions</option>
-                {getUniqueSetNames().map(setName => (
-                  <option key={setName} value={setName}>
-                    {setName}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {/* Sélecteur de taille de grille */}
-        <div className="filter-group">
+        
+        {/* Sélecteur de taille de grille */}
+        <div className="binder-controls">
           <label htmlFor="binder-size">Taille du Binder :</label>
           <select 
             id="binder-size"
@@ -234,6 +155,15 @@ const MyCards = () => {
             <option value="5x5">5x5 (25 cartes par page)</option>
           </select>
         </div>
+        
+        <div className="collection-stats">
+          <div className="stat-item">
+            <span className="stat-number">{getTotalCards()}</span>
+            <span className="stat-label">Cartes au total</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-number">{getUniqueCards()}</span>
+            <span className="stat-label">Cartes uniques</span>
           </div>
         </div>
       </div>
@@ -244,15 +174,9 @@ const MyCards = () => {
           <p>Commencez par ajouter des cartes depuis la page &ldquo;Listing des Cartes&rdquo;</p>
           <p>Un bouton &ldquo;Ajouter à ma collection&rdquo; apparaîtra sur chaque carte.</p>
         </div>
-      ) : getFilteredCards().length === 0 ? (
-        <div className="empty-collection">
-          <h3>Aucune carte trouvée</h3>
-          <p>Aucune carte ne correspond aux filtres sélectionnés.</p>
-          <p>Essayez de modifier vos critères de recherche.</p>
-        </div>
       ) : (
         <div className={`cards-grid ${getGridClass()}`} key={binderSize}>
-          {getFilteredCards().map(card => (
+          {cards.map(card => (
             <div key={card.id} className="user-card-item">
               <div className="card-image-container">
                 <img 
