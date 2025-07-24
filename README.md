@@ -1,8 +1,129 @@
-# 🧠 Pokémon Binder – Web App de gestion de collection Pokémon TCG
+# 🃏 Pokémon TCG Binder
 
-Bienvenue dans **Pokémon Binder**, une application Web qui permet aux collectionneurs de cartes Pokémon TCG de gérer, organiser et visualiser leur collection comme dans un vrai classeur !
+Application web pour gérer sa collection de cartes Pokémon TCG avec système de classeurs virtuels.
 
----
+## 🚀 Technologies
+
+- **Frontend**: React 18
+- **Backend**: FastAPI + Uvicorn
+- **Base de données**: MongoDB
+- **Containerisation**: Docker + Docker Compose
+- **Outils**: ESLint, Prettier, Tests unitaires
+
+## 📦 Installation et lancement
+
+### Prérequis
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Git](https://git-scm.com/)
+
+### Démarrage rapide
+
+1. **Cloner le projet**
+```bash
+git clone https://github.com/BastienLopez/Pokemon_binder.git
+cd Pokemon_binder
+```
+
+2. **Lancer avec Docker** (recommandé)
+
+**Sur Windows:**
+```bash
+start.bat
+```
+
+**Sur Linux/Mac:**
+```bash
+chmod +x start.sh
+./start.sh
+```
+
+**Ou manuellement:**
+```bash
+cd docker
+docker-compose up --build
+```
+
+3. **Accéder à l'application**
+- 🌐 **Frontend**: http://localhost:3000
+- 🔧 **API Backend**: http://localhost:8000
+- 📚 **Documentation API**: http://localhost:8000/docs
+- 🗄️ **MongoDB**: localhost:27017
+
+## 🏗️ Structure du projet
+
+```
+Pokemon_binder/
+├── frontend/          # Application React
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── services/
+│   └── package.json
+├── backend/           # API FastAPI
+│   ├── routers/
+│   ├── tests/
+│   ├── main.py
+│   └── requirements.txt
+├── docker/            # Configuration Docker
+│   ├── Dockerfile.frontend
+│   ├── Dockerfile.backend
+│   └── docker-compose.yml
+├── start.bat          # Script Windows
+├── start.sh           # Script Linux/Mac
+└── ROADMAP.md         # Plan de développement
+```
+
+## 🧪 Développement
+
+### Frontend (React)
+```bash
+cd frontend
+npm install
+npm start              # http://localhost:3000
+npm test               # Tests unitaires
+npm run lint           # ESLint
+npm run format         # Prettier
+```
+
+### Backend (FastAPI)
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Tests
+pytest
+```
+
+## 📋 État du développement
+
+### ✅ Phase 1 - Infrastructure (TERMINÉE)
+- [x] Configuration Docker
+- [x] Frontend React avec routing
+- [x] Backend FastAPI avec MongoDB
+- [x] Tests unitaires de base
+- [x] Outils de développement
+
+### 🔄 Prochaines phases
+- **Phase 2**: Authentification utilisateur
+- **Phase 3**: Listing des cartes Pokémon TCG
+- **Phase 4**: Gestion de la collection personnelle
+- **Phase 5**: Système de classeurs virtuels
+
+Voir [ROADMAP.md](ROADMAP.md) pour le détail complet.
+
+## 🤝 Contribution
+
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
+3. Commit les changements (`git commit -m 'Add some AmazingFeature'`)
+4. Push sur la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrir une Pull Request
+
+## 📄 License
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 📦 Fonctionnalités principales
 - 🔍 **Recherche de cartes Pokémon TCG** (via base officielle)
