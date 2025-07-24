@@ -159,6 +159,26 @@
   grid-template-columns: repeat(4, 1fr);
 }
 
+.cards-grid-5x5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.cards-grid-5x5 .card-image-container {
+  height: 250px;
+}
+
+.cards-grid-5x5 .card-info {
+  padding: 10px;
+}
+
+.cards-grid-5x5 .card-info h4 {
+  font-size: 14px;
+}
+
+.cards-grid-5x5 .card-info p {
+  font-size: 12px;
+}
+
 .card-item {
   background: white;
   border-radius: 15px;
@@ -229,11 +249,9 @@
     min-width: auto;
   }
   
-  .cards-grid-3x3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .cards-grid-4x4 {
+  .cards-grid-3x3,
+  .cards-grid-4x4,
+  .cards-grid-5x5 {
     grid-template-columns: repeat(2, 1fr);
   }
   
@@ -256,7 +274,8 @@
   }
   
   .cards-grid-3x3,
-  .cards-grid-4x4 {
+  .cards-grid-4x4,
+  .cards-grid-5x5 {
     grid-template-columns: 1fr;
   }
   

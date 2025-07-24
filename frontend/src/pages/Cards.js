@@ -54,7 +54,16 @@ const Cards = ({ showHeader = true }) => {
   const filteredCards = TCGdexService.filterCards(cards, filters);
 
   const getGridClass = () => {
-    return binderSize === '3x3' ? 'cards-grid-3x3' : 'cards-grid-4x4';
+    switch (binderSize) {
+      case '3x3':
+        return 'cards-grid-3x3';
+      case '4x4':
+        return 'cards-grid-4x4';
+      case '5x5':
+        return 'cards-grid-5x5';
+      default:
+        return 'cards-grid-3x3';
+    }
   };
 
   const getImageUrl = (card) => {
@@ -98,6 +107,7 @@ const Cards = ({ showHeader = true }) => {
             >
               <option value="3x3">3x3 (9 cartes par page)</option>
               <option value="4x4">4x4 (16 cartes par page)</option>
+              <option value="5x5">5x5 (25 cartes par page)</option>
             </select>
           </div>
 

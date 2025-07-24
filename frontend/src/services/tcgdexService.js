@@ -72,7 +72,7 @@ class TCGdexService {
     if (!card || !card.image) {
       return '';
     }
-    return `${card.image}/high.jpg`;
+    return `${card.image}/high.webp`;
   }
 
   /**

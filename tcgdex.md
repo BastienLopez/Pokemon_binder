@@ -1,14 +1,6 @@
-Voici une mise à jour complète du fichier `tcgdex.md`, intégrant :
+# Utilisation de l'API TCGdex pour les cartes Pokémon FR 
 
-* Le bon endpoint pour récupérer les cartes par extension.
-* L'explication du format d’URL pour obtenir les images haute qualité.
-* Un exemple d’appel API.
-* Des instructions pour afficher correctement les cartes avec leurs images.
-
----
-
-````md
-# Utilisation de l'API TCGdex pour les cartes Pokémon FR
+https://tcgdex.dev/
 
 ## Accéder à toutes les cartes d’une extension en français
 

@@ -112,7 +112,7 @@ describe('TCGdexService', () => {
       };
 
       const result = TCGdexService.getHighQualityImageUrl(card);
-      expect(result).toBe('https://assets.tcgdex.net/fr/base/base1/1/high.jpg');
+      expect(result).toBe('https://assets.tcgdex.net/fr/base/base1/1/high.webp');
     });
 
     test('retourne une chaîne vide si pas d\'image', () => {
