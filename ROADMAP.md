@@ -64,12 +64,14 @@ Utiliser le listing des cartes Pokémon TCG par extension.
 * [x] Recuperer les infos cartes, extensions, images cartes etc via l'API https://tcgdex.dev/
 * [x] Page  `/cartes`: 
   - Select l'extension
-  - Select Binder Page Size 3x3 ou 4x4 (scroll infi jusqu'a fin de toutes les cartes de l'extension)
+  - Select Binder Page Size 3x3 ou 4x4 ou 5x5 (scroll infi jusqu'a fin de toutes les cartes de l'extension)
   - bouton generer bider qui call api de l'extension choisi et affiche tt les cartes voulu en dessous comme sur l'img
 * [x] Intégrer ou connecter le module de listing
 * [x] Ajout filtres basiques : extension, rareté, nom
 * [x] (Facultatif) Affichage pagination / infini scroll
 * [x] Recuperer les infos cartes, extensions, images cartes etc via https://tcgdex.dev/
+
+* [ ] Add un bouton en bas a droite du nom de chaque carte qui va permettre de l'ajouter a nos cartes (sur la page 'mes cartes', donc select l'id de la carte a ajouté, l'add pour qu'elle soit lié a la partie 'cartes' de l'user connecté (il faut le stocker en bdd))
 
 ---
 
@@ -89,7 +91,7 @@ Permettre à l'utilisateur de gérer ses cartes.
 
 * [ ] Front :
   * [ ] Page `/mes-cartes`
-  * [ ] Affichage liste des cartes possédées
+  * [ ] Affichage liste des cartes possédées via les cartes save dans la bdd suite a l'ajout des cartes fait avant via l'ajout de carte de Listing des cartes
   * [ ] Formulaire d'ajout depuis base globale
   * [ ] Boutons modifier / supprimer
 

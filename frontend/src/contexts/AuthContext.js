@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
       const userData = await apiService.get('/auth/me');
       setUser(userData);
       
-      return { success: true };
+      return { success: true, userId: userData.id };
     } catch (error) {
       return { 
         success: false, 
@@ -73,6 +73,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    // Rediriger vers la page d'accueil
+    window.location.href = '/';
   };
 
   const value = {
