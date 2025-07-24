@@ -42,13 +42,6 @@ jobs:
       run: |
         pip install -r tests/requirements.txt
     
-    - name: Wait for MongoDB
-      run: |
-        until mongosh --host localhost:27017 --eval "print('MongoDB is ready')" > /dev/null 2>&1; do
-          echo "Waiting for MongoDB..."
-          sleep 2
-        done
-    
     - name: Run tests
       env:
         MONGODB_URL: mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
