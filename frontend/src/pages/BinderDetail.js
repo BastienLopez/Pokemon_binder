@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import binderService from '../services/binderService';
 import Notification from '../components/Notification';
 import './BinderDetail.css';
@@ -7,6 +8,7 @@ import './BinderDetail.css';
 const BinderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [binder, setBinder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -72,14 +74,13 @@ const BinderDetail = () => {
   };
 
   const handleAddCards = () => {
-    // TODO: Naviguer vers la page de sélection de cartes
-    navigate('/mes-cartes', { 
-      state: { 
-        returnTo: `/binder/${id}`,
-        mode: 'select',
-        binderId: id
-      }
-    });
+    // Console logs pour déboguer
+    console.log('🎯 BinderDetail - handleAddCards appelé');
+    console.log('🆔 Binder ID:', id);
+    console.log('👤 User ID:', user?.id);
+    
+    // Naviguer vers la page de sélection de cartes avec l'ID du binder dans l'URL
+    navigate(`/mes-cartes?id_binder=${id}&user_id=${user?.id}`);
   };
 
   const handleSlotClick = (pageNumber, position) => {

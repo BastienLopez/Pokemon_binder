@@ -2,6 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import UserCardsService from '../services/userCardsService';
+import TCGdexService from '../services/tcgdxService';
+import binderService from '../services/binderService';
+import ConfirmModal from '../components/ConfirmModal';
+import Toast from '../components/Toast';
+import './MyCards.css'; useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+import UserCardsService from '../services/userCardsService';
+import TCGdexService from '../services/tcgdexService';
+import binderService from '../services/binderService';
+import ConfirmModal from '../components/ConfirmModal';
+import Toast from '../components/Toast';
+import './MyCards.css';eact, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
+import UserCardsService from '../services/userCardsService';
 import TCGdexService from '../services/tcgdexService';
 import binderService from '../services/binderService';
 import ConfirmModal from '../components/ConfirmModal';
@@ -40,6 +56,13 @@ const MyCards = () => {
   const [targetBinder, setTargetBinder] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
   const [addingToBinderLoading, setAddingToBinderLoading] = useState(false);
+
+  // État pour les notifications toast
+  const [notification, setNotification] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
 
   const conditions = [
     'Mint',
@@ -166,6 +189,19 @@ const MyCards = () => {
     setConfirmModal({ ...confirmModal, isOpen: false });
   };
 
+  // Fonction pour afficher les notifications toast
+  const showNotification = (message, type = 'success') => {
+    setNotification({ show: true, message, type });
+    // Auto-hide après 4 secondes
+    setTimeout(() => {
+      setNotification(prev => ({ ...prev, show: false }));
+    }, 4000);
+  };
+
+  const hideNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+  };
+
   const getTotalCards = () => {
     const filteredCards = getFilteredCards();
     return filteredCards.reduce((total, card) => total + card.quantity, 0);
@@ -270,23 +306,21 @@ const MyCards = () => {
         await binderService.addCardToBinder(targetBinderId, cardData);
       }
 
-      // Afficher un message de succès
+      // Afficher un message de succès avec notification toast
       console.log('✅ Cartes ajoutées avec succès au binder');
-      setConfirmModal({
-        isOpen: true,
-        title: 'Succès',
-        message: `${selectedCards.length} carte(s) ajoutée(s) au binder "${targetBinder?.name || 'Inconnu'}" avec succès !`,
-        type: 'success',
-        onConfirm: () => {
-          setConfirmModal({ ...confirmModal, isOpen: false });
-          // Retourner au binder
-          console.log('🔄 Retour au binder:', targetBinderId);
-          navigate(`/binder/${targetBinderId}`);
-        }
-      });
+      showNotification(
+        `🎉 ${selectedCards.length} carte(s) ajoutée(s) au binder "${targetBinder?.name || 'Inconnu'}" avec succès !`, 
+        'success'
+      );
 
       // Réinitialiser la sélection
       setSelectedCards([]);
+      
+      // Optionnel : retourner automatiquement au binder après quelques secondes
+      setTimeout(() => {
+        console.log('🔄 Retour automatique au binder:', targetBinderId);
+        navigate(`/binder/${targetBinderId}`);
+      }, 2000);
       
     } catch (error) {
       console.error('Erreur lors de l\'ajout des cartes au binder:', error);
@@ -342,31 +376,27 @@ const MyCards = () => {
       <div className="my-cards-header">
         <h1>Mes Cartes</h1>
         {binderMode && targetBinder ? (
-          <div className="binder-mode-info">
-            <div className="binder-mode-header">
-              <h2>🎯 Mode Ajout au Binder</h2>
-              <p>Sélectionnez les cartes à ajouter au binder <strong>"{targetBinder.name}"</strong></p>
-              <div className="binder-mode-actions">
-                <button 
-                  className="btn-primary"
-                  onClick={addSelectedCardsToBinder}
-                  disabled={selectedCards.length === 0 || addingToBinderLoading}
-                >
-                  {addingToBinderLoading ? 'Ajout en cours...' : `Ajouter ${selectedCards.length} carte(s) au binder`}
-                </button>
-                <button 
-                  className="btn-secondary"
-                  onClick={cancelBinderMode}
-                >
-                  Annuler
-                </button>
-              </div>
-              {selectedCards.length > 0 && (
-                <p className="selection-info">
-                  {selectedCards.length} carte(s) sélectionnée(s)
-                </p>
-              )}
+          <div className="binder-mode-header">
+            <h2>🎯 Mode Ajout au Binder - "{targetBinder.name}"</h2>
+            <div className="binder-mode-actions">
+              <button 
+                className="btn-primary"
+                onClick={() => navigate(`/binder/${targetBinderId}`)}
+              >
+                ← Retour au binder
+              </button>
+              <button 
+                className="btn-secondary"
+                onClick={cancelBinderMode}
+              >
+                Annuler et retour à mes cartes
+              </button>
             </div>
+            {selectedCards.length > 0 && (
+              <p className="selection-info">
+                {selectedCards.length} carte(s) sélectionnée(s)
+              </p>
+            )}
           </div>
         ) : (
           <p>Bienvenue {user?.username} ! Voici votre collection personnelle.</p>
