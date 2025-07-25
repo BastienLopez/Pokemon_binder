@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
 import UserCardsService from '../services/userCardsService';
 import TCGdexService from '../services/tcgdexService';
-import binderService from '../services/binderService';
 import ConfirmModal from '../components/ConfirmModal';
 import './MyCards.css';
 
-const MyCards = () => {
+const MyCardsSimple = () => {
   const { user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [binderSize, setBinderSize] = useState('4x4');
@@ -34,13 +30,6 @@ const MyCards = () => {
     setName: ''
   });
 
-  // États pour le mode binder
-  const [binderMode, setBinderMode] = useState(false);
-  const [targetBinderId, setTargetBinderId] = useState(null);
-  const [targetBinder, setTargetBinder] = useState(null);
-  const [selectedCards, setSelectedCards] = useState([]);
-  const [addingToBinderLoading, setAddingToBinderLoading] = useState(false);
-
   const conditions = [
     'Mint',
     'Near Mint',
@@ -56,43 +45,6 @@ const MyCards = () => {
       fetchUserCards();
     }
   }, [user]);
-
-  // Détecter si on vient d'un binder
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const binderId = searchParams.get('id');
-    
-    if (binderId) {
-      setTargetBinderId(binderId);
-      setBinderMode(true);
-      fetchTargetBinder(binderId);
-    }
-  }, [location.search]);
-
-  const fetchTargetBinder = async (binderId) => {
-    try {
-      const binder = await binderService.getBinderById(binderId);
-      setTargetBinder(binder);
-    } catch (error) {
-      console.error('Erreur lors de la récupération du binder:', error);
-      // Afficher une erreur et revenir au mode normal
-      setConfirmModal({
-        isOpen: true,
-        title: 'Erreur',
-        message: `Le binder avec l'ID ${binderId} n'existe pas ou n'est plus accessible. Vous êtes maintenant en mode collection normale.`,
-        type: 'danger',
-        onConfirm: () => {
-          setConfirmModal({ ...confirmModal, isOpen: false });
-          // Revenir au mode normal
-          setBinderMode(false);
-          setTargetBinderId(null);
-          setTargetBinder(null);
-          // Nettoyer l'URL
-          navigate('/mes-cartes');
-        }
-      });
-    }
-  };
 
   const fetchUserCards = async () => {
     try {
@@ -207,104 +159,6 @@ const MyCards = () => {
     }));
   };
 
-  // Fonctions pour le mode binder
-  const toggleCardSelection = (card) => {
-    setSelectedCards(prev => {
-      const isSelected = prev.find(c => c.id === card.id);
-      if (isSelected) {
-        return prev.filter(c => c.id !== card.id);
-      } else {
-        return [...prev, card];
-      }
-    });
-  };
-
-  const addSelectedCardsToBinder = async () => {
-    if (selectedCards.length === 0) {
-      alert('Veuillez sélectionner au moins une carte');
-      return;
-    }
-
-    // Vérifier qu'on est vraiment en mode binder avec un binder valide
-    if (!binderMode || !targetBinderId || !targetBinder) {
-      alert('Erreur: Mode binder non actif ou binder invalide. Veuillez sélectionner un binder valide.');
-      return;
-    }
-
-    setAddingToBinderLoading(true);
-    
-    try {
-      // Ajouter chaque carte sélectionnée au binder
-      for (const card of selectedCards) {
-        const cardData = {
-          user_card_id: card.id,
-          card_id: card.card_id,
-          card_name: card.card_name,
-          card_image: card.card_image,
-          set_name: card.set_name,
-          local_id: card.local_id,
-          rarity: card.rarity,
-          quantity: 1 // Par défaut, ajouter 1 carte
-        };
-        
-        await binderService.addCardToBinder(targetBinderId, cardData);
-      }
-
-      // Afficher un message de succès
-      setConfirmModal({
-        isOpen: true,
-        title: 'Succès',
-        message: `${selectedCards.length} carte(s) ajoutée(s) au binder "${targetBinder?.name || 'Inconnu'}" avec succès !`,
-        type: 'success',
-        onConfirm: () => {
-          setConfirmModal({ ...confirmModal, isOpen: false });
-          // Retourner au binder
-          navigate(`/binder/${targetBinderId}`);
-        }
-      });
-
-      // Réinitialiser la sélection
-      setSelectedCards([]);
-      
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout des cartes au binder:', error);
-      
-      let errorMessage = 'Erreur lors de l\'ajout des cartes au binder.';
-      
-      // Personnaliser le message selon le type d'erreur
-      if (error.message && error.message.includes('404')) {
-        errorMessage = 'Le binder n\'existe plus ou n\'est plus accessible. Veuillez sélectionner un autre binder.';
-        // Nettoyer l'état du binder mode
-        setBinderMode(false);
-        setTargetBinderId(null);
-        setTargetBinder(null);
-      } else if (error.message && error.message.includes('403')) {
-        errorMessage = 'Vous n\'avez pas l\'autorisation d\'ajouter des cartes à ce binder.';
-      } else {
-        errorMessage = 'Erreur lors de l\'ajout des cartes au binder. Veuillez réessayer.';
-      }
-      
-      setConfirmModal({
-        isOpen: true,
-        title: 'Erreur',
-        message: errorMessage,
-        type: 'danger',
-        onConfirm: () => setConfirmModal({ ...confirmModal, isOpen: false })
-      });
-    } finally {
-      setAddingToBinderLoading(false);
-    }
-  };
-
-  const cancelBinderMode = () => {
-    setBinderMode(false);
-    setTargetBinderId(null);
-    setTargetBinder(null);
-    setSelectedCards([]);
-    // Retirer le paramètre ID de l'URL
-    navigate('/mes-cartes');
-  };
-
   if (loading) {
     return (
       <div className="my-cards-container">
@@ -319,36 +173,7 @@ const MyCards = () => {
     <div className="my-cards-container">
       <div className="my-cards-header">
         <h1>Mes Cartes</h1>
-        {binderMode && targetBinder ? (
-          <div className="binder-mode-info">
-            <div className="binder-mode-header">
-              <h2>🎯 Mode Ajout au Binder</h2>
-              <p>Sélectionnez les cartes à ajouter au binder <strong>"{targetBinder.name}"</strong></p>
-              <div className="binder-mode-actions">
-                <button 
-                  className="btn-primary"
-                  onClick={addSelectedCardsToBinder}
-                  disabled={selectedCards.length === 0 || addingToBinderLoading}
-                >
-                  {addingToBinderLoading ? 'Ajout en cours...' : `Ajouter ${selectedCards.length} carte(s) au binder`}
-                </button>
-                <button 
-                  className="btn-secondary"
-                  onClick={cancelBinderMode}
-                >
-                  Annuler
-                </button>
-              </div>
-              {selectedCards.length > 0 && (
-                <p className="selection-info">
-                  {selectedCards.length} carte(s) sélectionnée(s)
-                </p>
-              )}
-            </div>
-          </div>
-        ) : (
-          <p>Bienvenue {user?.username} ! Voici votre collection personnelle.</p>
-        )}
+        <p>Bienvenue {user?.username} ! Voici votre collection personnelle.</p>
         <div className="collection-stats">
           <div className="stat-item">
             <span className="stat-number">{getTotalCards()}</span>
@@ -427,68 +252,44 @@ const MyCards = () => {
         </div>
       ) : (
         <div className={`cards-grid ${getGridClass()}`} key={binderSize}>
-          {getFilteredCards().map(card => {
-            const isSelected = binderMode && selectedCards.find(c => c.id === card.id);
-            return (
-              <div 
-                key={card.id} 
-                className={`user-card-item ${binderMode ? 'binder-mode' : ''} ${isSelected ? 'selected' : ''}`}
-              >
-                <div className="card-image-container">
-                  <img 
-                    src={getCardImageUrl(card)} 
-                    alt={card.card_name}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.src = '/placeholder-card.png';
-                      e.target.alt = 'Image non disponible';
-                    }}
-                  />
-                  <div className="quantity-badge">{card.quantity}x</div>
-                  {binderMode && (
-                    <div className={`selection-badge ${isSelected ? 'selected' : ''}`}>
-                      {isSelected ? '✓' : '+'}
-                    </div>
-                  )}
-                </div>
+          {getFilteredCards().map(card => (
+            <div key={card.id} className="user-card-item">
+              <div className="card-image-container">
+                <img 
+                  src={getCardImageUrl(card)} 
+                  alt={card.card_name}
+                  loading="lazy"
+                  onError={(e) => {
+                    e.target.src = '/placeholder-card.png';
+                    e.target.alt = 'Image non disponible';
+                  }}
+                />
+                <div className="quantity-badge">{card.quantity}x</div>
+              </div>
+              
+              <div className="card-info">
+                <h4>{card.card_name}</h4>
+                <p className="set-name">{card.set_name}</p>
+                {card.rarity && <p className="rarity">Rareté: {card.rarity}</p>}
+                <p className="condition">État: {card.condition}</p>
                 
-                <div className="card-info">
-                  <div className="card-content">
-                    <h4>{card.card_name}</h4>
-                    <p className="set-name">{card.set_name}</p>
-                    {card.rarity && <p className="rarity">Rareté: {card.rarity}</p>}
-                    <p className="condition">État: {card.condition}</p>
-                  </div>
-                  
-                  <div className="card-actions">
-                    {binderMode ? (
-                      <button 
-                        className={`btn-select ${isSelected ? 'selected' : ''}`}
-                        onClick={() => toggleCardSelection(card)}
-                      >
-                        {isSelected ? 'Désélectionner' : 'Sélectionner'}
-                      </button>
-                    ) : (
-                      <>
-                        <button 
-                          className="btn-edit" 
-                          onClick={() => handleEditCard(card)}
-                        >
-                          Modifier
-                        </button>
-                        <button 
-                          className="btn-delete" 
-                          onClick={() => handleDeleteCard(card)}
-                        >
-                          Supprimer
-                        </button>
-                      </>
-                    )}
-                  </div>
+                <div className="card-actions">
+                  <button 
+                    className="btn-edit" 
+                    onClick={() => handleEditCard(card)}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="btn-delete" 
+                    onClick={() => handleDeleteCard(card)}
+                  >
+                    Supprimer
+                  </button>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
 
@@ -570,30 +371,8 @@ const MyCards = () => {
         onConfirm={confirmModal.onConfirm}
         onCancel={closeConfirmModal}
       />
-
-      {/* Bouton flottant de validation en mode binder */}
-      {binderMode && targetBinder && selectedCards.length > 0 && (
-        <div className="floating-validation-button">
-          <button 
-            className="btn-validate-selection"
-            onClick={addSelectedCardsToBinder}
-            disabled={addingToBinderLoading}
-          >
-            {addingToBinderLoading ? (
-              <>
-                <span className="loading-spinner"></span>
-                Ajout en cours...
-              </>
-            ) : (
-              <>
-                ✓ Ajouter {selectedCards.length} carte(s) au binder
-              </>
-            )}
-          </button>
-        </div>
-      )}
     </div>
   );
 };
 
-export default MyCards;
+export default MyCardsSimple;

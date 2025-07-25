@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import MyCards from './MyCards';
+import MyCardsSimple from './MyCardsSimple';
 import MyBinders from './MyBinders';
 import Cards from './Cards';
 import UserCardsService from '../services/userCardsService';
@@ -75,7 +75,7 @@ const UserDashboard = () => {
           </div>
         );
       case 'cards':
-        return <MyCards />;
+        return <MyCardsSimple />;
       case 'listing':
         return <Cards showHeader={false} />;
       case 'binders':

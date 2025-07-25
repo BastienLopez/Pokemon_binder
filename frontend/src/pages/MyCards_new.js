@@ -193,7 +193,6 @@ const MyCards = () => {
               
               <div className="card-info">
                 <h4>{card.card_name}</h4>
-                {card.local_id && <p className="card-number">#{card.local_id}</p>}
                 <p className="set-name">{card.set_name}</p>
                 {card.rarity && <p className="rarity">Rareté: {card.rarity}</p>}
                 <p className="condition">État: {card.condition}</p>
