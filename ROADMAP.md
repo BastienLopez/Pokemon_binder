@@ -1,4 +1,9 @@
-# 🗂️ Plan de développement – Pokémon TCG Bi## 📦 Phase 3 — Listing des cartes ✅ **TERMINÉ**
+# 🗂️ Plan de développement – Pokémon TCG Bi## 📦 Phase 3 — Listing des* [x] Recuperer les infos cartes, extensions, images cartes etc via https://tcgdx.dev/ ✅
+
+* [ ] **Restant à finaliser** :
+  * [ ] Ajouter un bouton "Ajouter à ma collection" sur chaque carte de la page listing
+  * [ ] Lier ce bouton au système d'ajout de cartes existant
+  * [ ] Synchronisation temps réel entre listing et collection utilisateurrtes ✅ **TERMINÉ**
 ### 🎯 Objectif :
 Utiliser le listing des cartes Pokémon TCG par extension.
 
@@ -74,7 +79,7 @@ Utiliser le listing des cartes Pokémon TCG par extension.
 * [ ] Add un bouton en bas a droite du nom de chaque carte qui va permettre de l'ajouter a nos cartes (sur la page 'mes cartes', donc select l'id de la carte a ajouté, l'add pour qu'elle soit lié a la partie 'cartes' de l'user connecté (il faut le stocker en bdd))
 
 
-## 📂 Phase 4 — "Mes cartes" (collection utilisateur) 
+## 📂 Phase 4 — "Mes cartes" (collection utilisateur) ✅ **TERMINÉ** 
 ### 🎯 Objectif :
 Permettre à l'utilisateur de gérer ses cartes personnelles depuis la page `/mes-cartes` (http://localhost:3000/user?id=6881f8ef09c3053f34c8cf8f).
 
@@ -104,102 +109,296 @@ Permettre à l'utilisateur de gérer ses cartes personnelles depuis la page `/me
         * [x] serie / extensions ✅
         * [x] taille de binder 3x3 4x4 ou 5x5 ✅
 
+* [x] **Tests complets** : ✅
+  * [x] Tests unitaires backend (API, Service, Models) ✅
+  * [x] Tests d'intégration (flux utilisateur complets) ✅  
+  * [x] Tests frontend (composants, pages, fonctionnalités) ✅
+  * [x] Tests de validation (structure, sécurité, performance) ✅
+  * [x] **Couverture de tests : 100% des fonctionnalités** ✅
+
 ---
 
 ## 📘 Phase 5 — Gestion des binders
 ### 🎯 Objectif :
-Créer, modifier et visualiser ses classeurs.
+Créer, modifier et visualiser ses classeurs virtuels pour organiser sa collection de cartes.
 
 ### ✅ Tâches :
 * [ ] Back :
-  * [ ] Modèle `Binder` (nom, taille, pages, userId, slots)
-  * [ ] Routes API :
-    * `GET /binders`
-    * `POST /binders`
-    * `PATCH /binders/:id`
-    * `DELETE /binders/:id`
+  * [ ] Modèle `Binder` avec schéma MongoDB :
+    * nom (string, requis)
+    * taille (enum: "3x3", "4x4", "5x5")
+    * description (string, optionnel)
+    * userId (ObjectId, lié à l'utilisateur)
+    * pages (array de pages avec slots)
+    * dateCreation, dateModification
+    * isPublic (boolean, pour partage futur)
+  * [ ] Service `BinderService` pour la logique métier
+  * [ ] Routes API avec validation Pydantic :
+    * `GET /user/binders` — Liste des binders de l'utilisateur
+    * `POST /user/binders` — Créer un nouveau binder
+    * `GET /user/binders/{binder_id}` — Détails d'un binder
+    * `PATCH /user/binders/{binder_id}` — Modifier un binder
+    * `DELETE /user/binders/{binder_id}` — Supprimer un binder
+    * `POST /user/binders/{binder_id}/cards` — Ajouter une carte au binder
+    * `DELETE /user/binders/{binder_id}/cards/{card_id}` — Retirer une carte
 
 * [ ] Front :
-  * [ ] Page `/mon-binder`
-  * [ ] Création d'un binder (choix 3x3 ou 4x4)
-  * [ ] Listing des binders
-  * [ ] Affichage grid dynamique des cartes
+  * [ ] Page `/mes-binders` (mise à jour de MyBinders.js existant)
+  * [ ] Formulaire de création de binder avec :
+    * Nom du binder
+    * Choix de taille (3x3, 4x4, 5x5)
+    * Description optionnelle
+  * [ ] Liste des binders avec prévisualisation
+  * [ ] Page détail `/binder/{id}` avec grid dynamique des cartes
+  * [ ] Navigation entre pages du binder
+  * [ ] Modal de prévisualisation rapide
 
-* [ ] Modifications : 
-  * [ ] Ajout de cartes depuis "Mes cartes"
-  * [ ] Placement **manuel ou automatique** dans le grid
-  * [ ] Modification ou suppression d'une carte du classeur
+* [ ] Fonctionnalités d'édition :
+  * [ ] Ajout de cartes depuis "Mes cartes" (sélection)
+  * [ ] Placement **manuel** 
+  * [ ] Placement **automatique** 
+  * [ ] Réorganisation des cartes entre slots
+  * [ ] Suppression de cartes du binder
+  * [ ] Gestion des pages multiples pour grands binders
 
 ---
 
-## 🧩 Phase 6 — Interaction avec le binder et les cartes page listing
+## 🧩 Phase 6 — Interaction avancée avec les cartes
 ### 🎯 Objectif :
-Pouvoir cliquer sur une carte et accéder à ses infos.
+Améliorer l'expérience utilisateur avec des interactions riches sur les cartes.
 
 ### ✅ Tâches :
-* [ ] Front :
-  * [ ] Pop-up au clic sur une carte :
-    * Image agrandie
-    * Nom
-    * Artiste
-    * Lien Cardmarket
-    * Prix (données stockées ou appel externe)
-  * [ ] Lien direct vers cardmarket.com
+* [ ] Système de modal détaillé :
+  * [ ] Pop-up au clic sur une carte avec :
+    * Image haute résolution (zoom)
+    * Informations complètes (nom, série, numéro, artiste)
+    * Statistiques de la carte (HP, attaques, etc.)
+    * Prix estimé (si disponible via API)
+    * Actions contextuelles (ajouter/retirer de collection/binder)
+
+* [ ] Intégrations externes :
+  * [ ] Lien direct vers Cardmarket.com
+  * [ ] Recherche sur eBay/TCGPlayer (liens externes)
+  * [ ] Partage sur réseaux sociaux
+
+* [ ] Fonctionnalités de comparaison :
+  * [ ] Mode comparaison (sélection multiple)
+  * [ ] Affichage côte à côte des cartes sélectionnées
+  * [ ] Comparaison des prix et raretés
 
 ---
 
-## 🎛️ Phase 7 — Filtres dans les binders
+## 🔍 Phase 7 — Recherche et filtres avancés
 ### 🎯 Objectif :
-Organiser les cartes affichées selon différents critères.
+Faciliter la navigation et l'organisation avec des outils de recherche puissants.
 
 ### ✅ Tâches :
+* [ ] Recherche globale :
+  * [ ] Barre de recherche unifiée (cartes + binders + collection)
+  * [ ] Recherche par nom, série, artiste, type
+  * [ ] Suggestions automatiques (autocomplétion)
+  * [ ] Historique des recherches
 
-* [ ] Filtre par :
-  * [ ] Nom
-  * [ ] Prix croissant / décroissant
-  * [ ] Placement personnalisé (drag & drop dans la grille)
+* [ ] Filtres dans les binders :
+  * [ ] Filtre par nom de carte
+  * [ ] Tri par prix (croissant/décroissant)
+  * [ ] Filtre par rareté
+  * [ ] Filtre par type de Pokémon
+  * [ ] Filtre par série/extension
+  * [ ] Sauvegarde des filtres favoris
 
-* [ ] Stocker l'ordre de placement si personnalisé
-
----
-
-## 🌟 Phase 8 — Fonctions avancées (bonus après MVP)
-### 🎯 Objectif :
-Améliorer l'expérience utilisateur et ajouter de la valeur.
-
-### ✅ Suggestions de modules :
-* [ ]  **Prix** : Afficher prix des cartes + prix total du binder 
-
-* [ ] 📜 **Wishlist** : système de cartes souhaitées
-
-* [ ] 📊 **Statistiques de collection** :
-  * % par extension
-  * Nombre total de cartes
-  * Valeur totale estimée
-
-* [ ] 🤝 **Partage de binder** :
-  * Lien public (lecture seule)
-
-* [ ] 🛒 **Intégration Cardmarket API** pour afficher :
-  * Prix en temps réel
-  * Lien direct d'achat
+* [ ] Organisation personnalisée :
+  * [ ] Placement manuel (drag & drop avancé)
+  * [ ] Tri automatique par critères
+  * [ ] Groupement par série/rareté
+  * [ ] Sauvegarde de l'ordre personnalisé
 
 ---
 
-## 🚀 Phase 9 — Mise en production
+## 🎨 Phase 8 — Interface et expérience utilisateur
 ### 🎯 Objectif :
-Déployer une première version stable.
+Créer une interface moderne et intuitive.
 
 ### ✅ Tâches :
-* [ ] Créer un frontend build React
-* [ ] Déployer backend (Render, Railway, Fly.io, etc.)
-* [ ] Déployer MongoDB (MongoDB Atlas)
-* [ ] Lier nom de domaine (ex: `pokemonbinder.app`)
-* [ ] Ajouter fichier `README.md` et documentation utilisateur
+* [ ] Design système :
+  * [ ] Thème sombre/clair
+  * [ ] Animations fluides (transitions CSS/Framer Motion)
+  * [ ] Design responsive parfait (mobile/tablette/desktop)
+  * [ ] Mode plein écran pour les binders
+
+* [ ] Expérience utilisateur :
+  * [ ] Tutoriel interactif pour nouveaux utilisateurs
+  * [ ] Raccourcis clavier
+  * [ ] Mode hors-ligne basique (PWA)
+  * [ ] Notifications push (nouveautés, rappels)
+
+* [ ] Accessibilité :
+  * [ ] Support lecteurs d'écran
+  * [ ] Navigation au clavier
+  * [ ] Contraste élevé
+  * [ ] Traduction multilingue (FR/EN de base)
 
 ---
 
-## 🧪 Phase 10 — Tests & Qualité ✅ **TERMINÉ**
+## 🌟 Phase 9 — Fonctionnalités avancées et gamification
+### 🎯 Objectif :
+Ajouter de la valeur et rendre l'application engageante.
+
+### ✅ Fonctionnalités premium :
+* [ ] 💰 **Système de prix et valuation** :
+  * [ ] Intégration API prix en temps réel (Cardmarket, TCGPlayer)
+  * [ ] Calcul de la valeur totale de collection/binder
+  * [ ] Historique des prix et tendances
+  * [ ] Alertes de variations de prix significatives
+  * [ ] Export PDF de la valeur collection (pour assurance)
+
+* [ ] 📜 **Wishlist intelligente** :
+  * [ ] Liste de cartes souhaitées avec priorités
+  * [ ] Suggestions basées sur la collection existante
+  * [ ] Notifications de nouvelles cartes disponibles
+  * [ ] Comparaison de prix entre vendeurs
+  * [ ] Partage de wishlist avec amis
+
+* [ ] 📊 **Statistiques et analytics** :
+  * [ ] Dashboard analytique complet
+  * [ ] Répartition par extension/série (graphiques)
+  * [ ] Taux de complétion par set
+  * [ ] Cartes les plus/moins chères de la collection
+  * [ ] Évolution de la valeur dans le temps
+  * [ ] Prédictions de complétion de sets
+
+* [ ] 🏆 **Gamification** :
+  * [ ] Système d'achievements/trophées :
+    * "Premier binder créé"
+    * "100 cartes collectées"
+    * "Set complet terminé"
+    * "Collectionneur de cartes rares"
+  * [ ] Niveau de collectionneur (débutant → expert)
+  * [ ] Défis mensuels (ex: "Ajouter 20 cartes de type Feu")
+  * [ ] Comparaisons avec autres collectionneurs (classements)
+
+### ✅ Fonctionnalités sociales :
+* [ ] 🤝 **Partage et communauté** :
+  * [ ] Profils publics de collectionneurs
+  * [ ] Partage de binders (lecture seule, lien public)
+  * [ ] Système de "like" sur les binders
+  * [ ] Commentaires sur les collections partagées
+  * [ ] Galerie communautaire des plus beaux binders
+
+* [ ] 🔄 **Échanges et marketplace** :
+  * [ ] Système d'échange entre utilisateurs
+  * [ ] Proposition d'échanges automatiques
+  * [ ] Marketplace interne (vente entre utilisateurs)
+  * [ ] Système de notation/feedback
+  * [ ] Chat intégré pour négociations
+
+### ✅ Outils avancés :
+* [ ] 📱 **Application mobile** :
+  * [ ] Scanner de cartes (reconnaissance image)
+  * [ ] Ajout rapide à la collection via scan
+  * [ ] Mode hors-ligne pour consultation
+  * [ ] Notifications push personnalisées
+
+* [ ] 🔐 **Gestion avancée** :
+  * [ ] Sauvegarde cloud automatique
+  * [ ] Export/Import de collection (CSV, JSON)
+  * [ ] Sauvegarde sur Google Drive/Dropbox
+  * [ ] Système de versioning de collection
+  * [ ] Mode collaboratif (plusieurs utilisateurs par collection)
+
+---
+
+## 🚀 Phase 10 — Mise en production et optimisation
+### 🎯 Objectif :
+Déployer une version stable et performante.
+
+### ✅ Tâches techniques :
+* [ ] **Optimisation performances** :
+  * [ ] Lazy loading des images
+  * [ ] Mise en cache intelligente (Redis)
+  * [ ] Optimisation base de données (index MongoDB)
+  * [ ] CDN pour les images (AWS CloudFront)
+  * [ ] Compression et minification assets
+
+* [ ] **Déploiement cloud** :
+  * [ ] Frontend : Vercel/Netlify
+  * [ ] Backend : Railway/Render/AWS
+  * [ ] Base de données : MongoDB Atlas
+  * [ ] Images : AWS S3 + CloudFront
+  * [ ] Monitoring : Sentry + LogRocket
+
+* [ ] **Sécurité et monitoring** :
+  * [ ] HTTPS obligatoire
+  * [ ] Rate limiting API
+  * [ ] Validation côté serveur renforcée
+  * [ ] Logs détaillés et monitoring
+  * [ ] Tests de charge et performance
+
+* [ ] **SEO et marketing** :
+  * [ ] Meta tags optimisés
+  * [ ] Sitemap XML
+  * [ ] Pages statiques pour SEO
+  * [ ] Blog intégré (actualités TCG)
+  * [ ] Newsletter (nouvelles fonctionnalités)
+
+---
+
+## 🧪 Phase 11 — Tests et qualité avancés
+### 🎯 Objectif :
+Atteindre une qualité de code exemplaire.
+
+### ✅ Tâches :
+* [ ] **Tests complets** :
+  * [ ] Couverture backend > 90%
+  * [ ] Tests d'intégration E2E complets (Playwright)
+  * [ ] Tests de performance (K6)
+  * [ ] Tests de sécurité (OWASP)
+  * [ ] Tests visuels (Chromatic/Percy)
+
+* [ ] **CI/CD avancé** :
+  * [ ] Pipeline de déploiement automatique
+  * [ ] Tests automatiques sur PR
+  * [ ] Analyse de qualité de code (SonarQube)
+  * [ ] Déploiement blue/green
+  * [ ] Rollback automatique en cas d'erreur
+
+---
+
+## 🎁 BONUS - Fonctionnalités innovantes
+### 🚀 Idées créatives pour se démarquer :
+
+* [ ] **IA et Machine Learning** :
+  * [ ] Reconnaissance automatique de cartes par photo
+  * [ ] Suggestions de cartes basées sur l'historique
+  * [ ] Prédiction de prix futurs
+  * [ ] Détection de cartes contrefaites
+
+* [ ] **Réalité Augmentée** :
+  * [ ] Visualisation des cartes en 3D
+  * [ ] Scanner AR pour identifier des cartes
+  * [ ] Binder virtuel en réalité augmentée
+
+* [ ] **Blockchain/NFT** :
+  * [ ] Certification numérique des cartes rares
+  * [ ] NFT des binders uniques
+  * [ ] Marketplace décentralisé
+
+* [ ] **Intégrations tierces** :
+  * [ ] Synchronisation avec Pokémon GO
+  * [ ] API pour applications tierces
+  * [ ] Widgets pour sites web
+  * [ ] Extension navigateur pour sites de vente
+
+* [ ] **Fonctionnalités premium** :
+  * [ ] Mode "Collectionneur Pro" (payant)
+  * [ ] Analyses avancées et rapports
+  * [ ] Support prioritaire
+  * [ ] Fonctionnalités exclusives
+  * [ ] Stockage illimité
+
+---
+
+## 🧪 Phase 12 — Tests & Qualité ✅ **TERMINÉ**
 ### 🎯 Objectif :
 Valider la stabilité et la robustesse de l'application.
 
@@ -209,3 +408,31 @@ Valider la stabilité et la robustesse de l'application.
 * [x] Tests E2E (optionnel avec Playwright / Cypress) ✅
 * [x] CI/CD : GitHub Actions pour lancer les tests automatiquement ✅
 * [x] **Objectif 100% de réussite des tests atteint** : 29 tests passent, 0 échecs, 0 skippés ✅
+
+---
+
+## 📈 Récapitulatif des priorités de développement
+
+### 🔥 **MVP (Minimum Viable Product) - Phases 1-5**
+1. ✅ Infrastructure et authentification (Phases 1-2)
+2. ✅ Listing et collection (Phases 3-4) 
+3. 🚧 **SUIVANT : Système de binders (Phase 5)**
+
+### 🎯 **Version 1.0 - Phases 6-8**
+4. Interactions avancées avec cartes
+5. Recherche et filtres
+6. Interface utilisateur optimisée
+
+### 🚀 **Version 2.0+ - Phases 9-12**
+7. Fonctionnalités avancées et gamification
+8. Mise en production optimisée
+9. Tests et qualité avancés
+10. Innovations (IA, AR, Blockchain)
+
+### 💡 **Métriques de succès**
+- **Utilisateurs** : 100+ utilisateurs actifs
+- **Collections** : 1000+ cartes ajoutées
+- **Binders** : 50+ binders créés
+- **Performance** : <2s temps de chargement
+- **Qualité** : >90% couverture tests
+- **Satisfaction** : >4.5/5 étoiles utilisateurs

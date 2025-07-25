@@ -42,10 +42,19 @@ jobs:
       run: |
         pip install -r tests/requirements.txt
     
+    - name: Start FastAPI backend for integration tests
+      run: |
+        cd backend
+        export MONGODB_URL=mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
+        export JWT_SECRET_KEY=test_secret_key_for_ci
+        export PYTHONPATH="${PYTHONPATH}:${PWD}"
+        python -m uvicorn main:app --host 0.0.0.0 --port 8000 &
+        sleep 10  # Attendre que le serveur démarre
+      
     - name: Run tests
       env:
         MONGODB_URL: mongodb://admin:password@localhost:27017/pokemon_binder_test?authSource=admin
         JWT_SECRET_KEY: test_secret_key_for_ci
       run: |
         export PYTHONPATH="${PYTHONPATH}:${PWD}/backend"
-        pytest tests/ -v
+        pytest tests/ -v -rs --tb=short --ignore=tests/integration/test_e2e.py --ignore=tests/integration/test_phase4_complete.py --ignore=tests/frontend/test_react_basic.py

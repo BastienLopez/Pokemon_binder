@@ -1,5 +1,5 @@
 """
-Configuration pytest pour tous les tests
+Configuration pytest pour tous les tests - Consolidé et nettoyé
 """
 
 import pytest
@@ -13,6 +13,7 @@ from unittest.mock import AsyncMock, MagicMock
 # Supprimer les warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", module="pydantic")
 
 # Ajouter le répertoire racine au path
 root_dir = Path(__file__).parent.parent
