@@ -9,6 +9,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Cards from './pages/Cards';
 import MyCards from './pages/MyCards';
+import MyBinders from './pages/MyBinders';
+import BinderDetail from './pages/BinderDetail';
 import UserDashboard from './pages/UserDashboard';
 
 function App() {
@@ -37,6 +39,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <MyCards />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/mes-binders" 
+              element={
+                <ProtectedRoute>
+                  <MyBinders />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/binder/:id" 
+              element={
+                <ProtectedRoute>
+                  <BinderDetail />
                 </ProtectedRoute>
               } 
             />

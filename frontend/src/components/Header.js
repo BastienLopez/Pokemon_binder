@@ -24,6 +24,7 @@ const Header = () => {
               <>
                 <Link to={`/cartes?id=${user?.id}`} className="nav-link">Cartes</Link>
                 <Link to={`/mes-cartes?id=${user?.id}`} className="nav-link">Mes Cartes</Link>
+                <Link to="/mes-binders" className="nav-link">Mes Binders</Link>
                 <div className="user-menu">
                   <span className="user-name">👋 {user?.username}</span>
                   <button onClick={handleLogout} className="btn btn-logout">

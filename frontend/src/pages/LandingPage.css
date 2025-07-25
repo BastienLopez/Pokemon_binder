@@ -69,15 +69,15 @@
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
-.btn-secondary {
-  background-color: transparent;
-  color: white;
-  border: 2px solid white;
+.landing-page .btn-secondary {
+  background-color: transparent !important;
+  color: white !important;
+  border: 2px solid white !important;
 }
 
-.btn-secondary:hover {
-  background-color: white;
-  color: #667eea;
+.landing-page .btn-secondary:hover {
+  background-color: white !important;
+  color: #667eea !important;
   transform: translateY(-2px);
 }
 
