@@ -55,7 +55,7 @@ const MyBinders = () => {
       
       setBinders(prev => [binderWithDefaults, ...prev]);
       setIsCreateModalOpen(false);
-      showNotification('✨ Binder créé avec succès !', 'success');
+      showNotification('Binder créé avec succès !', 'success');
     } catch (error) {
       console.error('Erreur lors de la création du binder:', error);
       showNotification(error.message || 'Erreur lors de la création du binder', 'error');
@@ -138,7 +138,7 @@ const MyBinders = () => {
     <div className="my-binders">
       <div className="page-header">
         <div className="header-content">
-          <h2>🗂️ Mes Binders</h2>
+          <h2>Mes Binders</h2>
           <p className="header-subtitle">
             Organisez votre collection de cartes Pokémon en classeurs virtuels
           </p>
@@ -147,20 +147,19 @@ const MyBinders = () => {
           className="btn btn-primary create-btn"
           onClick={() => setIsCreateModalOpen(true)}
         >
-          ✨ Créer un binder
+          Créer un binder
         </button>
       </div>
 
       {!binders || binders.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-icon">📂</div>
           <h3>Aucun binder pour le moment</h3>
           <p>Créez votre premier classeur virtuel pour organiser vos cartes Pokémon</p>
           <button 
             className="btn btn-primary"
             onClick={() => setIsCreateModalOpen(true)}
           >
-            ✨ Créer mon premier binder
+            Créer mon premier binder
           </button>
         </div>
       ) : (

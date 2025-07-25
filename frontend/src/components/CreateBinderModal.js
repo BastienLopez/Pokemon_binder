@@ -179,7 +179,7 @@ const CreateBinderModal = ({ isOpen, onClose, onSubmit, isLoading = false }) => 
                   Création...
                 </>
               ) : (
-                '✨ Créer le binder'
+                'Créer le binder'
               )}
             </button>
           </div>
