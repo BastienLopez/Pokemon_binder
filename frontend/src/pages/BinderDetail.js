@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import binderService from '../services/binderService';
+import TCGdexService from '../services/tcgdexService';
 import Notification from '../components/Notification';
 import './BinderDetail.css';
+import './UserDashboard.css'; // Importer les styles de la sidebar
 
 const BinderDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [binder, setBinder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -107,12 +109,134 @@ const BinderDetail = () => {
     }
   };
 
+  const getCardImageUrl = (slot) => {
+    // Console logs pour déboguer les images
+    console.log('🖼️ Debug image slot:', slot);
+    
+    // Priorité à l'image stockée depuis TCGdx
+    if (slot.card_image && slot.card_image !== '/placeholder-card.png') {
+      const imageUrl = TCGdxService.getHighQualityImageUrl({ image: slot.card_image });
+      console.log('✅ Image URL générée depuis card_image:', imageUrl);
+      return imageUrl;
+    }
+    
+    // Fallback : construire l'URL depuis card_id selon le format assets.tcgdx.net
+    if (slot.card_id) {
+      // Parser le card_id pour extraire série et numéro
+      // Format: "hgss2-94" -> serie="hgss", set="hgss2", numero="94"
+      // Format: "neo4-14" -> serie="neo", set="neo4", numero="14"
+      const parts = slot.card_id.split('-');
+      if (parts.length >= 2) {
+        const setId = parts[0]; // "hgss2", "neo4"
+        const cardNumber = parts[1]; // "94", "14"
+        
+        // Extraire la série de base depuis le set
+        let serie = setId;
+        if (setId.match(/^hgss/)) {
+          serie = 'hgss'; // "hgss2" -> "hgss"
+        } else if (setId.match(/^neo/)) {
+          serie = 'neo'; // "neo4" -> "neo"
+        } else if (setId.match(/^sv/)) {
+          serie = 'sv'; // "sv1" -> "sv"
+        } else {
+          // Pour d'autres formats, garder tel quel
+          serie = setId;
+        }
+        
+        // Essayer plusieurs domaines possibles
+        const possibleDomains = [
+          'https://assets.tcgdex.net',
+          'https://assets.tcgdex.dev', 
+          'https://tcgdx.dev/assets',
+          'https://api.tcgdx.net/v2/assets'
+        ];
+        
+        const imageUrl = `${possibleDomains[0]}/fr/${serie}/${setId}/${cardNumber}/high.webp`;
+        console.log('✅ Image URL construite depuis card_id:', imageUrl);
+        console.log(`   Card ID: ${slot.card_id} -> Serie: ${serie}, Set: ${setId}, Numero: ${cardNumber}`);
+        return imageUrl;
+      }
+    }
+    
+    console.log('❌ Pas d\'image card_image ni card_id valide, utilisation du placeholder');
+    // Fallback : image par défaut
+    return '/placeholder-card.png';
+  };
+
+  const handleLogout = () => {
+    logout();
+    window.location.href = '/';
+  };
+
+  // Composant sidebar réutilisable
+  const Sidebar = () => (
+    <div className="sidebar">
+      <div className="sidebar-header">
+        <h2>Pokémon TCG Binder</h2>
+        <div className="user-info">
+          <div className="user-avatar">
+            {user?.username?.charAt(0).toUpperCase() || 'U'}
+          </div>
+          <span className="username">{user?.username}</span>
+        </div>
+      </div>
+      
+      <nav className="sidebar-nav">
+        <button
+          className="nav-item"
+          onClick={() => navigate(`/user?id=${user?.id}`)}
+        >
+          <span className="nav-icon">👤</span>
+          Mon Profil
+        </button>
+        
+        <button
+          className="nav-item"
+          onClick={() => navigate(`/user?id=${user?.id}#mes-cartes`)}
+        >
+          <span className="nav-icon">🃏</span>
+          Mes Cartes
+        </button>
+        
+        <button
+          className="nav-item"
+          onClick={() => navigate(`/user?id=${user?.id}#listing`)}
+        >
+          <span className="nav-icon">📋</span>
+          Listing des Cartes
+        </button>
+        
+        <button
+          className="nav-item active"
+          onClick={() => navigate(`/user?id=${user?.id}#mes-binders`)}
+        >
+          <span className="nav-icon">📂</span>
+          Mes Binders
+        </button>
+      </nav>
+      
+      <div className="sidebar-footer">
+        <button className="logout-btn" onClick={handleLogout}>
+          <span className="nav-icon">🚪</span>
+          Déconnexion
+        </button>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
-      <div className="binder-detail">
-        <div className="loading-container">
-          <div className="loading-spinner large"></div>
-          <p>Chargement du binder...</p>
+      <div className="user-dashboard">
+        <Sidebar />
+        <div className="main-content">
+          <div className="content-container">
+            <div className="binder-detail">
+              <div className="loading-container">
+                <div className="loading-spinner large"></div>
+                <p>Chargement du binder...</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -120,18 +244,25 @@ const BinderDetail = () => {
 
   if (error) {
     return (
-      <div className="binder-detail">
-        <div className="error-container">
-          <div className="error-icon">⚠️</div>
-          <h3>Erreur de chargement</h3>
-          <p>{error}</p>
-          <div className="error-actions">
-            <button className="btn btn-primary" onClick={loadBinder}>
-              🔄 Réessayer
-            </button>
-            <button className="btn btn-secondary" onClick={() => navigate('/mes-binders')}>
-              ← Retour aux binders
-            </button>
+      <div className="user-dashboard">
+        <Sidebar />
+        <div className="main-content">
+          <div className="content-container">
+            <div className="binder-detail">
+              <div className="error-container">
+                <div className="error-icon">⚠️</div>
+                <h3>Erreur de chargement</h3>
+                <p>{error}</p>
+                <div className="error-actions">
+                  <button className="btn btn-primary" onClick={loadBinder}>
+                    🔄 Réessayer
+                  </button>
+                  <button className="btn btn-secondary" onClick={() => navigate(`/user?id=${user?.id}#mes-binders`)}>
+                    ← Retour aux binders
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -140,14 +271,21 @@ const BinderDetail = () => {
 
   if (!binder) {
     return (
-      <div className="binder-detail">
-        <div className="error-container">
-          <div className="error-icon">📂</div>
-          <h3>Binder non trouvé</h3>
-          <p>Le binder demandé n'existe pas ou a été supprimé.</p>
-          <button className="btn btn-primary" onClick={() => navigate('/mes-binders')}>
-            ← Retour aux binders
-          </button>
+      <div className="user-dashboard">
+        <Sidebar />
+        <div className="main-content">
+          <div className="content-container">
+            <div className="binder-detail">
+              <div className="error-container">
+                <div className="error-icon">📂</div>
+                <h3>Binder non trouvé</h3>
+                <p>Le binder demandé n'existe pas ou a été supprimé.</p>
+                <button className="btn btn-primary" onClick={() => navigate(`/user?id=${user?.id}#mes-binders`)}>
+                  ← Retour aux binders
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -157,140 +295,151 @@ const BinderDetail = () => {
   const { rows, cols } = getGridDimensions(binder.size);
 
   return (
-    <div className="binder-detail">
-      <div className="binder-header">
-        <div className="header-nav">
-          <button 
-            className="back-btn"
-            onClick={() => navigate('/mes-binders')}
-          >
-            ← Mes binders
-          </button>
-        </div>
-        
-        <div className="binder-info">
-          <div className="binder-title">
-            <h1>{binder.name}</h1>
-            <div className="binder-badges">
-              <span className="size-badge">{getSizeLabel(binder.size)}</span>
-              {binder.is_public && <span className="public-badge">🌐 Public</span>}
-            </div>
-          </div>
-          
-          {binder.description && (
-            <p className="binder-description">{binder.description}</p>
-          )}
-          
-          <div className="binder-stats">
-            <div className="stat">
-              <span className="stat-icon">🃏</span>
-              <span className="stat-value">{binder.total_cards}</span>
-              <span className="stat-label">cartes</span>
-            </div>
-            <div className="stat">
-              <span className="stat-icon">📄</span>
-              <span className="stat-value">{binder.total_pages}</span>
-              <span className="stat-label">pages</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="binder-navigation">
-        <div className="page-controls">
-          <button 
-            className="nav-btn"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-          >
-            ← Page précédente
-          </button>
-          
-          <div className="page-info">
-            <span>Page {currentPage} sur {binder.total_pages}</span>
-          </div>
-          
-          <button 
-            className="nav-btn"
-            disabled={currentPage === binder.total_pages}
-            onClick={() => setCurrentPage(prev => Math.min(binder.total_pages, prev + 1))}
-          >
-            Page suivante →
-          </button>
-        </div>
-        
-        <button className="btn btn-primary" onClick={handleAddPage}>
-          ➕ Ajouter une page
-        </button>
-      </div>
-
-      <div className="binder-page">
-        <div className="page-header">
-          <h3>Page {currentPage}</h3>
-        </div>
-        
-        <div 
-          className={`card-grid grid-${binder.size.replace('x', '-')}`}
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gridTemplateRows: `repeat(${rows}, 1fr)`
-          }}
-        >
-          {currentPageData?.slots.map((slot, index) => (
-            <div key={index} className="card-slot">
-              {slot.card_id ? (
-                <div className="card-container">
-                  <img
-                    src={`https://assets.tcgdx.net/fr/sv/sv1/${slot.card_id}/low.webp`}
-                    alt={`Carte ${slot.card_id}`}
-                    className="card-image"
-                    onError={(e) => {
-                      e.target.src = '/placeholder-card.png';
-                    }}
-                  />
-                  <div className="card-overlay">
-                    <button
-                      className="remove-card-btn"
-                      onClick={() => handleRemoveCard(currentPage, index)}
-                      title="Retirer cette carte"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div 
-                  className="empty-slot" 
-                  onClick={() => handleSlotClick(currentPage, index)}
-                  style={{ cursor: 'pointer' }}
+    <div className="user-dashboard">
+      <Sidebar />
+      
+      {/* Contenu principal du binder */}
+      <div className="main-content">
+        <div className="content-container">
+          <div className="binder-detail">
+            <div className="binder-header">
+              <div className="header-nav">
+                <button 
+                  className="btn btn-primary create-btn"
+                  onClick={() => navigate(`/user?id=${user?.id}#mes-binders`)}
                 >
-                  <div className="slot-placeholder">
-                    <span className="slot-icon">➕</span>
-                    <span className="slot-text">Slot vide</span>
+                  ← Mes binders
+                </button>
+              </div>
+              
+              <div className="binder-info">
+                <div className="binder-title">
+                  <h1>{binder.name}</h1>
+                  <div className="binder-badges">
+                    <span className="size-badge">{getSizeLabel(binder.size)}</span>
+                    {binder.is_public && <span className="public-badge">🌐 Public</span>}
                   </div>
                 </div>
-              )}
-              <div className="slot-number">{index + 1}</div>
+                
+                {binder.description && (
+                  <p className="binder-description">{binder.description}</p>
+                )}
+                
+                <div className="binder-stats">
+                  <div className="stat">
+                    <span className="stat-icon">🃏</span>
+                    <span className="stat-value">{binder.total_cards}</span>
+                    <span className="stat-label">cartes</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-icon">📄</span>
+                    <span className="stat-value">{binder.total_pages}</span>
+                    <span className="stat-label">pages</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
+
+            <div className="binder-navigation">
+              <div className="page-controls">
+                <button 
+                  className="nav-btn"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                >
+                  ← Page précédente
+                </button>
+                
+                <div className="page-info">
+                  <span>Page {currentPage} sur {binder.total_pages}</span>
+                </div>
+                
+                <button 
+                  className="nav-btn"
+                  disabled={currentPage === binder.total_pages}
+                  onClick={() => setCurrentPage(prev => Math.min(binder.total_pages, prev + 1))}
+                >
+                  Page suivante →
+                </button>
+              </div>
+              
+              <button className="btn btn-primary" onClick={handleAddPage}>
+                Ajouter une page
+              </button>
+            </div>
+
+            <div className="binder-page">
+              <div className="page-header">
+                <h3>Page {currentPage}</h3>
+              </div>
+              
+              <div 
+                className={`card-grid grid-${binder.size.replace('x', '-')}`}
+                style={{
+                  gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                  gridTemplateRows: `repeat(${rows}, 1fr)`
+                }}
+              >
+                {currentPageData?.slots.map((slot, index) => (
+                  <div key={index} className="card-slot">
+                    {slot.card_id ? (
+                      <div className="card-container">
+                        <img
+                          src={getCardImageUrl(slot)}
+                          alt={slot.card_name || `Carte ${slot.card_id}`}
+                          className="card-image"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.target.src = '/placeholder-card.png';
+                            e.target.alt = 'Image non disponible';
+                          }}
+                        />
+                        <div className="card-overlay">
+                          <button
+                            className="remove-card-btn"
+                            onClick={() => handleRemoveCard(currentPage, index)}
+                            title="Retirer cette carte"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div 
+                        className="empty-slot" 
+                        onClick={() => handleSlotClick(currentPage, index)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="slot-placeholder">
+                          <span className="slot-icon">➕</span>
+                          <span className="slot-text">Slot vide</span>
+                        </div>
+                      </div>
+                    )}
+                    <div className="slot-number">{index + 1}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="binder-actions">
+              <button className="btn btn-secondary" onClick={handleEditBinder}>
+                ✏️ Modifier le binder
+              </button>
+              <button className="btn btn-primary" onClick={handleAddCards}>
+                🃏 Ajouter des cartes
+              </button>
+            </div>
+
+            <Notification
+              show={notification.show}
+              message={notification.message}
+              type={notification.type}
+              onClose={hideNotification}
+            />
+          </div>
         </div>
       </div>
-
-      <div className="binder-actions">
-        <button className="btn btn-secondary" onClick={handleEditBinder}>
-          ✏️ Modifier le binder
-        </button>
-        <button className="btn btn-primary" onClick={handleAddCards}>
-          🃏 Ajouter des cartes
-        </button>
-      </div>
-
-      <Notification
-        show={notification.show}
-        message={notification.message}
-        type={notification.type}
-        onClose={hideNotification}
-      />
     </div>
   );
 };

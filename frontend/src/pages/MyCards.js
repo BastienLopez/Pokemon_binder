@@ -40,6 +40,13 @@ const MyCards = () => {
   const [targetBinder, setTargetBinder] = useState(null);
   const [selectedCards, setSelectedCards] = useState([]);
   const [addingToBinderLoading, setAddingToBinderLoading] = useState(false);
+  
+  // État pour la notification volante
+  const [floatingNotification, setFloatingNotification] = useState({
+    show: false,
+    message: '',
+    type: 'success'
+  });
 
   const conditions = [
     'Mint',
@@ -270,20 +277,18 @@ const MyCards = () => {
         await binderService.addCardToBinder(targetBinderId, cardData);
       }
 
-      // Afficher un message de succès
+      // Afficher une notification volante de succès
       console.log('✅ Cartes ajoutées avec succès au binder');
-      setConfirmModal({
-        isOpen: true,
-        title: 'Succès',
-        message: `${selectedCards.length} carte(s) ajoutée(s) au binder "${targetBinder?.name || 'Inconnu'}" avec succès !`,
-        type: 'success',
-        onConfirm: () => {
-          setConfirmModal({ ...confirmModal, isOpen: false });
-          // Retourner au binder
-          console.log('🔄 Retour au binder:', targetBinderId);
-          navigate(`/binder/${targetBinderId}`);
-        }
+      setFloatingNotification({
+        show: true,
+        message: `${selectedCards.length} carte(s) ajoutée(s) au binder "${targetBinder?.name || 'Inconnu'}" !`,
+        type: 'success'
       });
+
+      // Masquer la notification après 3 secondes
+      setTimeout(() => {
+        setFloatingNotification(prev => ({ ...prev, show: false }));
+      }, 3000);
 
       // Réinitialiser la sélection
       setSelectedCards([]);
@@ -342,31 +347,21 @@ const MyCards = () => {
       <div className="my-cards-header">
         <h1>Mes Cartes</h1>
         {binderMode && targetBinder ? (
-          <div className="binder-mode-info">
-            <div className="binder-mode-header">
-              <h2>🎯 Mode Ajout au Binder</h2>
-              <p>Sélectionnez les cartes à ajouter au binder <strong>"{targetBinder.name}"</strong></p>
-              <div className="binder-mode-actions">
-                <button 
-                  className="btn-primary"
-                  onClick={addSelectedCardsToBinder}
-                  disabled={selectedCards.length === 0 || addingToBinderLoading}
-                >
-                  {addingToBinderLoading ? 'Ajout en cours...' : `Ajouter ${selectedCards.length} carte(s) au binder`}
-                </button>
-                <button 
-                  className="btn-secondary"
-                  onClick={cancelBinderMode}
-                >
-                  Annuler
-                </button>
-              </div>
-              {selectedCards.length > 0 && (
-                <p className="selection-info">
-                  {selectedCards.length} carte(s) sélectionnée(s)
-                </p>
-              )}
+          <div className="binder-mode-header">
+            <h2>🎯 Mode Ajout au Binder: "{targetBinder.name}"</h2>
+            <div className="binder-mode-actions">
+              <button 
+                className="btn-primary"
+                onClick={() => navigate(`/binder/${targetBinderId}`)}
+              >
+                ← Retour au binder
+              </button>
             </div>
+            {selectedCards.length > 0 && (
+              <p className="selection-info">
+                {selectedCards.length} carte(s) sélectionnée(s)
+              </p>
+            )}
           </div>
         ) : (
           <p>Bienvenue {user?.username} ! Voici votre collection personnelle.</p>
@@ -514,10 +509,10 @@ const MyCards = () => {
         </div>
       )}
 
-      {/* Modal d'édition */}
+      {/* Modal d'édition améliorée */}
       {showEditModal && selectedCard && (
         <div className="modal-overlay" onClick={() => setShowEditModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content-enhanced" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Modifier la carte</h3>
               <button 
@@ -528,57 +523,110 @@ const MyCards = () => {
               </button>
             </div>
             
-            <form onSubmit={handleUpdateCard}>
-              <div className="form-group">
-                <label htmlFor="card-name">Carte :</label>
-                <input 
-                  type="text" 
-                  id="card-name"
-                  value={selectedCard.card_name} 
-                  disabled 
-                />
+            <div className="modal-body">
+              {/* Section image et informations de la carte */}
+              <div className="card-display-section">
+                <div className="card-image-preview">
+                  <img 
+                    src={getCardImageUrl(selectedCard)} 
+                    alt={selectedCard.card_name}
+                    onError={(e) => {
+                      e.target.src = '/placeholder-card.png';
+                      e.target.alt = 'Image non disponible';
+                    }}
+                  />
+                </div>
+                
+                <div className="card-info-display">
+                  <h4 className="card-name-display">{selectedCard.card_name}</h4>
+                  <p className="card-set-display">
+                    <span className="info-label">Extension :</span>
+                    <span className="info-value">{selectedCard.set_name}</span>
+                  </p>
+                  {selectedCard.rarity && (
+                    <p className="card-rarity-display">
+                      <span className="info-label">Rareté :</span>
+                      <span className="info-value">{selectedCard.rarity}</span>
+                    </p>
+                  )}
+                  {selectedCard.local_id && (
+                    <p className="card-number-display">
+                      <span className="info-label">N° :</span>
+                      <span className="info-value">{selectedCard.local_id}</span>
+                    </p>
+                  )}
+                </div>
               </div>
               
-              <div className="form-group">
-                <label htmlFor="quantity">Quantité :</label>
-                <input 
-                  type="number" 
-                  id="quantity"
-                  min="1" 
-                  value={editForm.quantity}
-                  onChange={(e) => setEditForm({...editForm, quantity: parseInt(e.target.value)})}
-                  required 
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="condition">État :</label>
-                <select 
-                  id="condition"
-                  value={editForm.condition}
-                  onChange={(e) => setEditForm({...editForm, condition: e.target.value})}
-                >
-                  {conditions.map(condition => (
-                    <option key={condition} value={condition}>
-                      {condition}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="form-actions">
-                <button type="submit" className="btn-save">
-                  Sauvegarder
-                </button>
-                <button 
-                  type="button" 
-                  className="btn-cancel"
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Annuler
-                </button>
-              </div>
-            </form>
+              {/* Formulaire d'édition */}
+              <form onSubmit={handleUpdateCard} className="edit-form">
+                <div className="form-section">
+                  <h5>Modifier les informations</h5>
+                  
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label htmlFor="quantity">
+                        <span className="label-icon">📦</span>
+                        Quantité
+                      </label>
+                      <input 
+                        type="number" 
+                        id="quantity"
+                        min="1" 
+                        max="999"
+                        value={editForm.quantity}
+                        onChange={(e) => setEditForm({...editForm, quantity: parseInt(e.target.value)})}
+                        required 
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label htmlFor="condition">
+                        <span className="label-icon">⭐</span>
+                        État de la carte
+                      </label>
+                      <select 
+                        id="condition"
+                        value={editForm.condition}
+                        onChange={(e) => setEditForm({...editForm, condition: e.target.value})}
+                      >
+                        {conditions.map(condition => (
+                          <option key={condition} value={condition}>
+                            {condition}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  {/* Information sur l'état */}
+                  <div className="condition-info">
+                    <small>
+                      {editForm.condition === 'Mint' && '✨ État parfait, comme neuve'}
+                      {editForm.condition === 'Near Mint' && '🌟 Excellent état, très légères traces'}
+                      {editForm.condition === 'Excellent' && '👍 Bon état général'}
+                      {editForm.condition === 'Good' && '👌 État correct, quelques défauts mineurs'}
+                      {editForm.condition === 'Light Played' && '⚠️ Légèrement usée'}
+                      {editForm.condition === 'Played' && '⚠️ Usure visible'}
+                      {editForm.condition === 'Poor' && '❌ Très usée, nombreux défauts'}
+                    </small>
+                  </div>
+                </div>
+                
+                <div className="card-actions">
+                  <button 
+                    type="button" 
+                    className="btn-delete"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    Annuler
+                  </button>
+                  <button type="submit" className="btn-edit">
+                    Sauvegarder
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -592,6 +640,26 @@ const MyCards = () => {
         onConfirm={confirmModal.onConfirm}
         onCancel={closeConfirmModal}
       />
+
+      {/* Notification volante */}
+      {floatingNotification.show && (
+        <div className={`floating-notification ${floatingNotification.type}`}>
+          <div className="notification-content">
+            <span className="notification-icon">
+              {floatingNotification.type === 'success' ? '✅' : '❌'}
+            </span>
+            <span className="notification-message">
+              {floatingNotification.message}
+            </span>
+            <button 
+              className="notification-close"
+              onClick={() => setFloatingNotification(prev => ({ ...prev, show: false }))}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Bouton flottant de validation en mode binder */}
       {binderMode && targetBinder && selectedCards.length > 0 && (
