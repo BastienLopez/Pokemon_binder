@@ -1,17 +1,11 @@
 # 🗂️ Plan de développement – Pokémon TCG Binder
 
-##### ✅ Tâches finalisées :
-* [x] **Finalisation terminée** : ✅
-  * [x] Ajouter un bouton "Ajouter à ma collection" sur chaque carte de la page listing ✅
-  * [x] Lier ce bouton au système d'ajout de cartes existant ✅
-  * [x] Synchronisation temps réel entre listing et collection utilisateur ✅
-
----l du projet (Juillet 2025)**
-- ✅ **MVP TERMINÉ** : Phases 1-6 complètes et fonctionnelles
-- ✅ **210 tests** passent avec succès (0 échecs)
+## 🚀 **État actuel du projet (Juillet 2025)**
+- ✅ **MVP TERMINÉ** : Phases 1-5 complètes et fonctionnelles
+- ✅ **140 tests** passent avec succès (0 échecs)
 - ✅ **Architecture solide** : FastAPI + React + MongoDB + Docker
-- ✅ **Fonctionnalités clés** : Auth, Collection, Binders, Drag & Drop
-- 🚧 **En développement** : Phase 7 - Recherche et filtres avancés
+- ✅ **Fonctionnalités clés** : Auth, Collection, Binders, API complète
+- 🚧 **En développement** : Phase 6 - Drag & Drop avancé
 
 ---
 
@@ -236,45 +230,37 @@ Créer, modifier et visualiser ses classeurs virtuels pour organiser sa collecti
 
 ---
 
-## 🧩 Phase 6 — Interaction avancée avec les cartes ✅ **TERMINÉ**
+## 🧩 Phase 6 — Interaction avancée avec les cartes 🚧 **EN COURS**
 ### 🎯 Objectif :
 Améliorer l'expérience utilisateur avec des interactions riches sur les cartes et des fonctionnalités de drag & drop.
 
-### ✅ Tâches prioritaires (drag & drop) :
-* [x] **Système de drag & drop dans les binders** :
+### 🔄 Tâches prioritaires (drag & drop) :
+* [x] **Système de drag & drop dans les binders** : ✅
   * [x] Drag & drop des cartes entre slots d'une même page ✅
   * [x] Drag & drop des cartes entre pages différentes ✅
-  * [x] Drag & drop des cartes depuis "Mes cartes" vers un binder ouvert ✅
+  * [ ] Drag & drop des cartes depuis "Mes cartes" vers un binder ouvert
   * [x] Visual feedback pendant le drag (preview de la carte, zones de drop) ✅
   * [x] Validation des règles de placement (slot libre, permissions) ✅
   * [x] Animation fluide et responsive ✅
   * [x] Annulation par Escape ou clic en dehors ✅
   * [x] Sauvegarde automatique après déplacement ✅
 
-### ✅ **Implémentation technique du drag & drop** :
-* [x] **Backend** :
-  * [x] Modèle `MoveCardInBinder` pour les données de déplacement ✅
+### 🔧 **Implémentation technique du drag & drop** :
+* [x] **Backend** : ✅
   * [x] Route API `PATCH /user/binders/{binder_id}/cards/move` pour déplacer une carte ✅
   * [x] Validation des positions source et destination ✅
   * [x] Gestion des conflits (slot occupé) ✅
   * [x] Mise à jour atomique des positions ✅
   * [x] Tests unitaires pour les déplacements ✅
 
-* [x] **Frontend** :
+* [x] **Frontend** : ✅
   * [x] Composant `DraggableCard` avec preview ✅
   * [x] Composant `DroppableSlot` avec visual feedback ✅
   * [x] Hook `useDragAndDrop` pour la logique métier ✅
   * [x] État de drag (en cours, validé, erreur) ✅
   * [x] Optimistic updates avec rollback en cas d'erreur ✅
-  * [x] CSS styling pour animations et feedback visuel ✅
-  * [x] Intégration complète dans `BinderDetail` ✅
 
-* [x] **Tests complets** :
-  * [x] Tests unitaires (36 tests Phase 6) ✅
-  * [x] Tests d'intégration ✅
-  * [x] Tests de validation de l'implémentation ✅
-
-### 🔮 Tâches futures (interface avancée) :
+### ✅ Tâches (interface avancée) :
 * [ ] Système de modal détaillé :
   * [ ] Pop-up au clic sur une carte avec :
     * Image haute résolution (zoom)
@@ -526,63 +512,15 @@ Valider la stabilité et la robustesse de l'application.
 2. ✅ Listing et collection (Phases 3-4) 
 3. ✅ **Système de binders (Phase 5) - TERMINÉ**
 
-### 🎯 **Version 1.0 - Phases 6-8 ✅ 1 PHASE TERMINÉE**
-4. ✅ **TERMINÉ : Interactions avancées avec cartes (Phase 6) - Drag & Drop**
-5. 🚧 **EN COURS : Recherche et filtres avancés (Phase 7)**
+### 🎯 **Version 1.0 - Phases 6-8 🚧 EN COURS**
+4. 🚧 **EN COURS : Interactions avancées avec cartes (Phase 6) - Drag & Drop**
+5. Recherche et filtres avancés (Phase 7)
 6. Interface utilisateur optimisée (Phase 8)
 
 ### 🚀 **Version 2.0+ - Phases 9-12**
 7. Fonctionnalités avancées et gamification
 8. Mise en production optimisée
 9. Tests et qualité avancés
-
----
-
-## 🎉 **Récap Phase 6 - Drag & Drop : IMPLÉMENTATION COMPLÈTE** ✅
-
-### 📋 **Résumé des réalisations :**
-La Phase 6 a été **entièrement implémentée** avec succès ! Voici ce qui a été développé :
-
-#### 🔧 **Backend (FastAPI + MongoDB)**
-- **Nouveau modèle** : `MoveCardInBinder` (validation des données de déplacement)
-- **Service étendu** : Méthode `move_card_in_binder()` dans `BinderService`
-- **API REST** : Endpoint `PATCH /user/binders/{binder_id}/cards/move`
-- **Validation complète** : Positions, permissions, conflits de slot
-- **Gestion d'erreurs** : Cas edge gérés (slot vide, même position, etc.)
-
-#### 🎨 **Frontend (React + Hooks)**
-- **Composants drag & drop** :
-  - `DraggableCard` : Cartes avec gestion du drag et preview
-  - `DroppableSlot` : Zones de drop avec feedback visuel
-- **Hook personnalisé** : `useDragAndDrop` pour la logique métier
-- **État global** : Gestion complète du state pendant le drag
-- **CSS avancé** : Animations, transitions, feedback visuel
-- **Intégration** : BinderDetail mis à jour avec le nouveau système
-
-#### 🧪 **Tests (36 nouveaux tests)**
-- **Tests unitaires** : Logique drag & drop (18 tests)
-- **Tests d'intégration** : Workflow complet (18 tests)
-- **Couverture** : 100% des fonctionnalités Phase 6
-- **Validation** : Tous les cas d'usage et erreurs
-
-#### ✨ **Fonctionnalités implémentées**
-- ✅ Drag & drop entre slots d'une même page
-- ✅ Drag & drop entre pages différentes  
-- ✅ Visual feedback pendant le drag (preview, zones de drop)
-- ✅ Validation des règles (slot libre, permissions)
-- ✅ Animations fluides et responsives
-- ✅ Annulation par Escape
-- ✅ Sauvegarde automatique
-- ✅ Gestion d'erreurs complète
-
-### 📊 **Statistiques**
-- **Fichiers créés/modifiés** : 8 fichiers
-- **Lignes de code** : ~1200 lignes ajoutées
-- **Tests** : 36 nouveaux tests (100% passent)
-- **API** : 1 nouvel endpoint
-- **Composants React** : 3 nouveaux composants + 1 hook
-
-🚀 **La Phase 6 est maintenant TERMINÉE et pleinement fonctionnelle !**
 10. Innovations (IA, AR, Blockchain)
 
 ### 💡 **Métriques de succès**

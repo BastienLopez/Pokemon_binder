@@ -8,9 +8,11 @@
   transition: all 0.2s ease;
   background: #f8f9fa;
   border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
 }
 
-.draggable-card:hover:not(.dragging) {
+.draggable-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-color: #3498db;
@@ -21,16 +23,11 @@
 }
 
 .draggable-card.dragging {
-  opacity: 0.5;
-  transform: none !important;
+  opacity: 1;
+  transform: rotate(5deg) scale(1.05);
   z-index: 1000;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   border-color: #3498db;
-  width: auto !important;
-  height: auto !important;
-  max-width: none !important;
-  max-height: none !important;
-  scale: 1 !important;
 }
 
 .draggable-card.preview-mode {
@@ -47,28 +44,21 @@
 .card-content {
   position: relative;
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0; /* Permet à flex de réduire la taille si nécessaire */
 }
 
 .card-image {
   width: 100%;
   height: auto;
-  max-height: 85%;
+  flex: 1;
   object-fit: contain;
   border-radius: 6px;
   user-select: none;
   pointer-events: none;
-}
-
-/* Forcer la taille de l'image pendant le drag */
-.draggable-card.dragging .card-image {
-  width: 100% !important;
-  height: auto !important;
-  max-height: 85% !important;
-  transform: none !important;
-  scale: 1 !important;
+  min-height: 0; /* Permet à l'image de se réduire */
 }
 
 .card-overlay {
@@ -81,13 +71,13 @@
   opacity: 0;
   transition: opacity 0.2s ease;
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
   padding: 4px;
   border-radius: 6px;
 }
 
-.draggable-card:hover:not(.dragging) .card-overlay {
+.draggable-card:hover .card-overlay {
   opacity: 1;
 }
 
@@ -139,6 +129,29 @@
   transform: scale(1.1);
 }
 
+/* Bouton Supprimer en bas de la carte */
+.remove-card-btn-bottom {
+  background: rgba(231, 76, 60, 0.9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 6px;
+  margin: 5px auto;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 80%;
+  text-align: center;
+  display: block;
+}
+
+.remove-card-btn-bottom:hover {
+  background: rgba(231, 76, 60, 1);
+  transform: scale(1.03);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .drag-indicator {
   position: absolute;
   top: 50%;
@@ -156,14 +169,22 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+.card-footer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex-shrink: 0; /* Ne pas réduire le footer */
+  background: #f8f9fa;
+  border-top: 1px solid #eee;
+}
+
 .card-info {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 4px;
+  padding: 4px 4px 2px;
   background: rgba(255, 255, 255, 0.9);
-  border-top: 1px solid #eee;
 }
 
 .card-name {
@@ -178,45 +199,22 @@
   max-width: 100%;
 }
 
-/* Nouveau bouton Supprimer en dessous de l'image */
-.remove-card-btn-bottom {
-  background: linear-gradient(135deg, #e74c3c, #c0392b);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 9px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: calc(100% - 8px);
-  margin: 5px 4px 8px 4px;
-  position: relative;
-  z-index: 10;
-}
-
-.remove-card-btn-bottom:hover {
-  background: linear-gradient(135deg, #c0392b, #a93226);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Animations désactivées pour éviter les changements de taille */
+/* Animations */
 @keyframes dragStart {
   0% {
-    transform: none;
+    transform: scale(1) rotate(0deg);
   }
   100% {
-    transform: none;
+    transform: scale(1.05) rotate(5deg);
   }
 }
 
 @keyframes dragEnd {
   0% {
-    transform: none;
+    transform: scale(1.05) rotate(5deg);
   }
   100% {
-    transform: none;
+    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -241,14 +239,13 @@
     font-size: 9px;
   }
   
-  .remove-card-btn-bottom {
-    font-size: 8px;
-    padding: 3px 6px;
-    max-width: 70px;
-  }
-  
   .drag-indicator {
     font-size: 11px;
     padding: 6px 10px;
+  }
+  
+  .remove-card-btn-bottom {
+    font-size: 9px;
+    padding: 2px 4px;
   }
 }

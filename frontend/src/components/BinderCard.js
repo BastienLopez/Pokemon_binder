@@ -210,24 +210,6 @@ const BinderCard = ({
         </div>
 
         <div className="binder-actions" onClick={(e) => e.stopPropagation()}>
-          {onPreview && (
-            <button
-              className="action-btn preview-btn"
-              onClick={() => onPreview(binder)}
-              title="Aperçu rapide"
-            >
-              👁️
-            </button>
-          )}
-          {onEdit && (
-            <button
-              className="action-btn edit-btn"
-              onClick={() => onEdit(binder)}
-              title="Modifier"
-            >
-              ✏️
-            </button>
-          )}
           {onDelete && (
             <button
               className="action-btn delete-btn"

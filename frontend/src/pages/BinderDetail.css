@@ -144,15 +144,14 @@
 /* Navigation des pages */
 .binder-navigation {
   display: flex;
-  flex-direction: column;
   align-items: center;
+  justify-content: center;
   margin-bottom: 1.5rem;
   padding: 1rem 1.5rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-light);
-  gap: 1rem;
 }
 
 .page-controls {
@@ -161,8 +160,8 @@
   gap: 1rem;
 }
 
-.binder-navigation .btn {
-  order: 2;
+.add-page-btn {
+  margin-left: 1rem;
 }
 
 .nav-btn {
@@ -205,11 +204,11 @@
 }
 
 .page-header {
-  margin-bottom: 1.5rem;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
 }
 
 .page-header h3 {
@@ -221,11 +220,14 @@
   text-align: center;
 }
 
-.page-header .btn {
-  min-width: 160px;
-  height: 40px;
-  font-size: 0.9rem;
-  border-radius: 8px;
+.edit-binder-btn {
+  margin-right: 1rem;
+  white-space: nowrap;
+}
+
+.add-cards-btn {
+  margin-left: 1rem;
+  white-space: nowrap;
 }
 
 /* Grille des cartes */
@@ -511,20 +513,30 @@
   }
   
   .binder-navigation {
-    flex-direction: column;
-    justify-content: center;
-    gap: 1rem;
     padding: 1rem;
   }
   
-  .binder-navigation .btn {
-    order: 2;
-  }
-  
   .page-controls {
-    order: 1;
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  
+  .add-page-btn {
+    margin: 0.5rem 0 0;
+    width: 100%;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .edit-binder-btn, 
+  .add-cards-btn {
+    margin: 0;
+    width: 100%;
   }
 }
 
@@ -544,6 +556,16 @@
   .page-controls {
     flex-direction: column;
     gap: 0.5rem;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0;
+  }
+  
+  .page-header h3 {
+    order: -1;
   }
   
   .nav-btn {
@@ -615,6 +637,8 @@
     width: 100%;
   }
 }
+
+/* ========= STYLES DRAG & DROP ========= */
 
 /* Styles pour le drag & drop */
 .card-grid {
@@ -708,7 +732,7 @@
   opacity: 1;
 }
 
-/* Responsive adjustments pour drag & drop */
+/* Responsive adjustments pour le drag & drop */
 @media (max-width: 768px) {
   .card-grid {
     gap: 6px;

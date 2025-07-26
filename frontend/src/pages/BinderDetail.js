@@ -404,7 +404,7 @@ const BinderDetail = () => {
                   Page suivante →
                 </button>
                 
-                <button className="btn btn-primary" onClick={handleAddPage}>
+                <button className="btn btn-primary add-page-btn" onClick={handleAddPage}>
                   Ajouter une page
                 </button>
               </div>
@@ -412,27 +412,22 @@ const BinderDetail = () => {
 
             <div className="binder-page">
               <div className="page-header">
-                <button className="btn btn-primary" onClick={handleEditBinder}>
+                <button className="btn btn-secondary edit-binder-btn" onClick={handleEditBinder}>
                   ✏️ Modifier le binder
                 </button>
                 <h3>Page {currentPage}</h3>
-                <button className="btn btn-primary" onClick={handleAddCards}>
+                <button className="btn btn-primary add-cards-btn" onClick={handleAddCards}>
                   🃏 Ajouter des cartes
                 </button>
               </div>
               
               <div 
-                className={`card-grid grid-${binder.size.replace('x', '-')} ${dragState.isDragging ? 'drag-active' : ''}`}
+                className={`card-grid grid-${binder.size.replace('x', '-')}`}
                 style={{
                   gridTemplateColumns: `repeat(${cols}, 1fr)`,
                   gridTemplateRows: `repeat(${rows}, 1fr)`
                 }}
               >
-                {/* Message d'aide pour le drag & drop */}
-                <div className="drag-help">
-                  💡 Glissez-déposez les cartes pour les réorganiser
-                </div>
-                
                 {currentPageData?.slots.map((slot, index) => {
                   // Enrichir les données du slot pour le drag & drop
                   const enrichedSlot = {
