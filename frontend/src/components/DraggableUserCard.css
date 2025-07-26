@@ -1,0 +1,326 @@
+.draggable-user-card {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.draggable-user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: #3498db;
+}
+
+.draggable-user-card.binder-mode {
+  cursor: grab;
+  border-color: #27ae60;
+}
+
+.draggable-user-card.binder-mode:hover {
+  border-color: #27ae60;
+  box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
+}
+
+.draggable-user-card.binder-mode:active {
+  cursor: grabbing;
+}
+
+.draggable-user-card.selected {
+  border-color: #e74c3c;
+  background: linear-gradient(135deg, #fff 0%, #ffebee 100%);
+}
+
+.draggable-user-card.dragging {
+  opacity: 0.6;
+  transform: rotate(5deg) scale(1.05);
+  z-index: 1000;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  border-color: #27ae60;
+}
+
+.card-content {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-image {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Badges */
+.quantity-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(52, 152, 219, 0.9);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+  border: 2px solid white;
+}
+
+.condition-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(255, 193, 7, 0.9);
+  color: #333;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+  border: 1px solid white;
+}
+
+/* Overlays */
+.binder-mode-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(39, 174, 96, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(2px);
+}
+
+.draggable-user-card.binder-mode:hover .binder-mode-overlay {
+  opacity: 1;
+}
+
+.drag-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #27ae60;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 2px solid #27ae60;
+}
+
+.drag-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.drag-text {
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.selection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(231, 76, 60, 0.2);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 8px;
+  backdrop-filter: blur(2px);
+}
+
+.selection-indicator {
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.drag-active-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(39, 174, 96, 0.95);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  border: 2px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Informations de la carte */
+.card-info {
+  padding: 8px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-set {
+  font-size: 10px;
+  color: #6c757d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Animations */
+@keyframes dragStart {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    transform: scale(1.05) rotate(5deg);
+  }
+}
+
+@keyframes dragEnd {
+  0% {
+    transform: scale(1.05) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.draggable-user-card.drag-start {
+  animation: dragStart 0.2s ease-out forwards;
+}
+
+.draggable-user-card.drag-end {
+  animation: dragEnd 0.2s ease-out forwards;
+}
+
+/* États spéciaux */
+.draggable-user-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.draggable-user-card.highlight {
+  border-color: #f39c12;
+  background: linear-gradient(135deg, #fff 0%, #fef9e7 100%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.4);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .draggable-user-card {
+    border-width: 1px;
+  }
+  
+  .card-image {
+    max-height: 150px;
+  }
+  
+  .quantity-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    top: 6px;
+    right: 6px;
+  }
+  
+  .condition-badge {
+    font-size: 9px;
+    padding: 1px 4px;
+    top: 6px;
+    left: 6px;
+  }
+  
+  .card-name {
+    font-size: 11px;
+  }
+  
+  .card-set {
+    font-size: 9px;
+  }
+  
+  .drag-indicator {
+    padding: 6px 8px;
+  }
+  
+  .drag-icon {
+    font-size: 16px;
+  }
+  
+  .drag-text {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-info {
+    padding: 6px;
+  }
+  
+  .card-image {
+    max-height: 120px;
+  }
+  
+  .quantity-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+  
+  .card-name {
+    font-size: 10px;
+  }
+  
+  .card-set {
+    font-size: 8px;
+  }
+}

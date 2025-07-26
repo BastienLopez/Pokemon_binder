@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import binderService from '../services/binderService';
 import TCGdexService from '../services/tcgdexService';
 import Notification from '../components/Notification';
+import DraggableCard from '../components/DraggableCard';
+import DroppableSlot from '../components/DroppableSlot';
+import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import './BinderDetail.css';
 import './UserDashboard.css'; // Importer les styles de la sidebar
 
@@ -16,6 +19,45 @@ const BinderDetail = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+
+  // Callback pour gérer le déplacement de carte par drag & drop
+  const handleCardMove = useCallback(async (sourceSlot, targetSlot, card) => {
+    try {
+      console.log('🎯 [BinderDetail] Déplacement de carte:', {
+        from: sourceSlot,
+        to: targetSlot,
+        card
+      });
+
+      // Appel API pour déplacer la carte
+      const moveData = {
+        source_page: sourceSlot.page,
+        source_position: sourceSlot.position,
+        destination_page: targetSlot.page,
+        destination_position: targetSlot.position
+      };
+
+      const updatedBinder = await binderService.moveCardInBinder(id, moveData);
+      setBinder(updatedBinder);
+      
+      showNotification('✅ Carte déplacée avec succès !', 'success');
+      
+    } catch (error) {
+      console.error('❌ [BinderDetail] Erreur lors du déplacement:', error);
+      showNotification(error.message || 'Erreur lors du déplacement de la carte', 'error');
+    }
+  }, [id]);
+
+  // Hook pour le drag & drop
+  const { dragState, handlers } = useDragAndDrop(handleCardMove, binder);
+
+  // Gestion du clavier pour annulation
+  useEffect(() => {
+    document.addEventListener('keydown', handlers.onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handlers.onKeyDown);
+    };
+  }, [handlers.onKeyDown]);
 
   useEffect(() => {
     loadBinder();
@@ -374,51 +416,60 @@ const BinderDetail = () => {
               </div>
               
               <div 
-                className={`card-grid grid-${binder.size.replace('x', '-')}`}
+                className={`card-grid grid-${binder.size.replace('x', '-')} ${dragState.isDragging ? 'drag-active' : ''}`}
                 style={{
                   gridTemplateColumns: `repeat(${cols}, 1fr)`,
                   gridTemplateRows: `repeat(${rows}, 1fr)`
                 }}
               >
-                {currentPageData?.slots.map((slot, index) => (
-                  <div key={index} className="card-slot">
-                    {slot.card_id ? (
-                      <div className="card-container">
-                        <img
-                          src={getCardImageUrl(slot)}
-                          alt={slot.card_name || `Carte ${slot.card_id}`}
-                          className="card-image"
-                          loading="lazy"
-                          onError={(e) => {
-                            e.target.src = '/placeholder-card.png';
-                            e.target.alt = 'Image non disponible';
+                {/* Message d'aide pour le drag & drop */}
+                <div className="drag-help">
+                  💡 Glissez-déposez les cartes pour les réorganiser
+                </div>
+                
+                {currentPageData?.slots.map((slot, index) => {
+                  // Enrichir les données du slot pour le drag & drop
+                  const enrichedSlot = {
+                    ...slot,
+                    page: currentPage,
+                    position: index
+                  };
+
+                  const isDropTarget = dragState.dropTarget && 
+                    dragState.dropTarget.page === currentPage && 
+                    dragState.dropTarget.position === index;
+
+                  return (
+                    <DroppableSlot
+                      key={index}
+                      slot={enrichedSlot}
+                      isDropTarget={isDropTarget}
+                      onDragOver={handlers.onDragOver}
+                      onDragEnter={handlers.onDragEnter}
+                      onDragLeave={handlers.onDragLeave}
+                      onDrop={handlers.onDrop}
+                      onClick={() => handleSlotClick(currentPage, index)}
+                    >
+                      {slot.card_id ? (
+                        <DraggableCard
+                          card={{
+                            card_id: slot.card_id,
+                            card_name: slot.card_name || `Carte ${slot.card_id}`,
+                            user_card_id: slot.user_card_id
                           }}
+                          slot={enrichedSlot}
+                          imageUrl={getCardImageUrl(slot)}
+                          isDragging={dragState.isDragging && 
+                            dragState.draggedSlot?.page === currentPage && 
+                            dragState.draggedSlot?.position === index}
+                          onDragStart={handlers.onDragStart}
+                          onDragEnd={handlers.onDragEnd}
+                          onRemove={handleRemoveCard}
                         />
-                        <div className="card-overlay">
-                          <button
-                            className="remove-card-btn"
-                            onClick={() => handleRemoveCard(currentPage, index)}
-                            title="Retirer cette carte"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div 
-                        className="empty-slot" 
-                        onClick={() => handleSlotClick(currentPage, index)}
-                        style={{ cursor: 'pointer' }}
-                      >
-                        <div className="slot-placeholder">
-                          <span className="slot-icon">➕</span>
-                          <span className="slot-text">Slot vide</span>
-                        </div>
-                      </div>
-                    )}
-                    <div className="slot-number">{index + 1}</div>
-                  </div>
-                ))}
+                      ) : null}
+                    </DroppableSlot>
+                  );
+                })}
               </div>
             </div>
 

@@ -3,5 +3,5 @@ from models.user import UserBase, UserCreate, UserLogin, UserInDB, UserResponse,
 from models.user_card import UserCardBase, UserCardCreate, UserCardUpdate, UserCardInDB, UserCardResponse
 from models.binder import (
     BinderSize, CardSlot, BinderPage, BinderBase, BinderCreate, BinderUpdate, 
-    BinderInDB, BinderResponse, BinderSummary, AddCardToBinder, RemoveCardFromBinder
+    BinderInDB, BinderResponse, BinderSummary, AddCardToBinder, RemoveCardFromBinder, MoveCardInBinder
 )

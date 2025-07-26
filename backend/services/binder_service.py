@@ -3,7 +3,7 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from models.binder import (
     BinderInDB, BinderCreate, BinderUpdate, BinderResponse, BinderSummary,
-    AddCardToBinder, RemoveCardFromBinder, BinderPage, CardSlot
+    AddCardToBinder, RemoveCardFromBinder, MoveCardInBinder, BinderPage, CardSlot
 )
 from models.user_card import UserCardInDB
 from datetime import datetime
@@ -343,4 +343,68 @@ class BinderService:
             
         except Exception as e:
             logger.error(f"Erreur lors de l'ajout de page au binder {binder_id}: {str(e)}")
+            raise
+
+    async def move_card_in_binder(self, binder_id: str, user_id: str, move_data: MoveCardInBinder) -> Optional[BinderResponse]:
+        """Déplace une carte dans le binder (drag & drop)"""
+        try:
+            # Récupérer le binder
+            binder = await self.collection.find_one({
+                "_id": ObjectId(binder_id),
+                "user_id": ObjectId(user_id)
+            })
+            
+            if not binder:
+                return None
+            
+            # Valider les paramètres de déplacement
+            source_page_index = move_data.source_page - 1
+            dest_page_index = move_data.destination_page - 1
+            
+            if (source_page_index >= len(binder["pages"]) or 
+                dest_page_index >= len(binder["pages"]) or
+                source_page_index < 0 or dest_page_index < 0):
+                raise ValueError("Numéro de page invalide")
+            
+            source_page = binder["pages"][source_page_index]
+            dest_page = binder["pages"][dest_page_index]
+            
+            if (move_data.source_position >= len(source_page["slots"]) or
+                move_data.destination_position >= len(dest_page["slots"]) or
+                move_data.source_position < 0 or move_data.destination_position < 0):
+                raise ValueError("Position invalide")
+            
+            # Vérifier qu'il y a une carte à la position source
+            source_slot = source_page["slots"][move_data.source_position]
+            if not source_slot["card_id"]:
+                raise ValueError("Aucune carte à la position source")
+            
+            # Vérifier que la destination est libre
+            dest_slot = dest_page["slots"][move_data.destination_position]
+            if dest_slot["card_id"]:
+                raise ValueError("La position de destination est déjà occupée")
+            
+            # Effectuer le déplacement
+            dest_slot["card_id"] = source_slot["card_id"]
+            dest_slot["user_card_id"] = source_slot["user_card_id"]
+            
+            # Vider la position source
+            source_slot["card_id"] = None
+            source_slot["user_card_id"] = None
+            
+            # Mettre à jour en base
+            await self.collection.update_one(
+                {"_id": ObjectId(binder_id)},
+                {
+                    "$set": {
+                        "pages": binder["pages"],
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            return await self.get_binder_by_id(binder_id, user_id)
+            
+        except Exception as e:
+            logger.error(f"Erreur lors du déplacement de carte dans le binder {binder_id}: {str(e)}")
             raise

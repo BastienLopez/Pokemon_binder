@@ -136,6 +136,22 @@ class BinderService {
   }
 
   /**
+   * Déplace une carte dans le binder (drag & drop)
+   */
+  async moveCardInBinder(binderId, moveData) {
+    try {
+      const response = await this.apiService.patch(`/user/binders/${binderId}/cards/move`, moveData);
+      return response; // apiService.patch retourne déjà response.data
+    } catch (error) {
+      console.error('Erreur lors du déplacement de carte dans le binder:', error);
+      throw new Error(
+        error.response?.data?.detail || 
+        'Erreur lors du déplacement de la carte'
+      );
+    }
+  }
+
+  /**
    * Calcule le nombre de slots par page selon la taille
    */
   getSlotsPerPage(size) {

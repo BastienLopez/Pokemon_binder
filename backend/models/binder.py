@@ -107,3 +107,10 @@ class RemoveCardFromBinder(BaseModel):
     """Modèle pour retirer une carte du binder"""
     page_number: int = Field(..., description="Numéro de la page")
     position: int = Field(..., description="Position dans la page")
+
+class MoveCardInBinder(BaseModel):
+    """Modèle pour déplacer une carte dans le binder"""
+    source_page: int = Field(..., description="Numéro de la page source")
+    source_position: int = Field(..., description="Position source dans la page")
+    destination_page: int = Field(..., description="Numéro de la page destination")
+    destination_position: int = Field(..., description="Position destination dans la page")

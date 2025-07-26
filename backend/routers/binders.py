@@ -7,7 +7,7 @@ from dependencies import get_database, get_current_user
 from models.user import UserInDB
 from models.binder import (
     BinderCreate, BinderUpdate, BinderResponse, BinderSummary,
-    AddCardToBinder, RemoveCardFromBinder
+    AddCardToBinder, RemoveCardFromBinder, MoveCardInBinder
 )
 from services.binder_service import BinderService
 
@@ -237,4 +237,37 @@ async def add_page_to_binder(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erreur lors de l'ajout de la page"
+        )
+
+@router.patch("/{binder_id}/cards/move", response_model=BinderResponse)
+async def move_card_in_binder(
+    binder_id: str,
+    move_data: MoveCardInBinder,
+    current_user: UserInDB = Depends(get_current_user),
+    db = Depends(get_database)
+):
+    """Déplace une carte dans le binder (drag & drop)"""
+    try:
+        binder_service = BinderService(db)
+        binder = await binder_service.move_card_in_binder(binder_id, str(current_user.id), move_data)
+        
+        if not binder:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Binder non trouvé"
+            )
+        
+        return binder
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erreur lors du déplacement de carte dans le binder {binder_id}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erreur lors du déplacement de la carte"
         )
