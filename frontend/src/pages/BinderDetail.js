@@ -403,16 +403,22 @@ const BinderDetail = () => {
                 >
                   Page suivante →
                 </button>
+                
+                <button className="btn btn-primary" onClick={handleAddPage}>
+                  Ajouter une page
+                </button>
               </div>
-              
-              <button className="btn btn-primary" onClick={handleAddPage}>
-                Ajouter une page
-              </button>
             </div>
 
             <div className="binder-page">
               <div className="page-header">
+                <button className="btn btn-primary" onClick={handleEditBinder}>
+                  ✏️ Modifier le binder
+                </button>
                 <h3>Page {currentPage}</h3>
+                <button className="btn btn-primary" onClick={handleAddCards}>
+                  🃏 Ajouter des cartes
+                </button>
               </div>
               
               <div 
@@ -471,15 +477,6 @@ const BinderDetail = () => {
                   );
                 })}
               </div>
-            </div>
-
-            <div className="binder-actions">
-              <button className="btn btn-secondary" onClick={handleEditBinder}>
-                ✏️ Modifier le binder
-              </button>
-              <button className="btn btn-primary" onClick={handleAddCards}>
-                🃏 Ajouter des cartes
-              </button>
             </div>
 
             <Notification

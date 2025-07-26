@@ -9,7 +9,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.draggable-user-card:hover {
+.draggable-user-card:hover:not(.dragging) {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   border-color: #3498db;
@@ -20,7 +20,7 @@
   border-color: #27ae60;
 }
 
-.draggable-user-card.binder-mode:hover {
+.draggable-user-card.binder-mode:hover:not(.dragging) {
   border-color: #27ae60;
   box-shadow: 0 4px 16px rgba(39, 174, 96, 0.3);
 }
@@ -36,10 +36,15 @@
 
 .draggable-user-card.dragging {
   opacity: 0.6;
-  transform: rotate(5deg) scale(1.05);
+  transform: none !important;
   z-index: 1000;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   border-color: #27ae60;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+  scale: 1 !important;
 }
 
 .card-content {
@@ -56,6 +61,15 @@
   object-fit: contain;
   user-select: none;
   pointer-events: none;
+}
+
+/* Forcer la taille de l'image pendant le drag */
+.draggable-user-card.dragging .card-image {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 200px !important;
+  transform: none !important;
+  scale: 1 !important;
 }
 
 /* Badges */
@@ -107,7 +121,7 @@
   backdrop-filter: blur(2px);
 }
 
-.draggable-user-card.binder-mode:hover .binder-mode-overlay {
+.draggable-user-card.binder-mode:hover:not(.dragging) .binder-mode-overlay {
   opacity: 1;
 }
 
@@ -207,21 +221,22 @@
 }
 
 /* Animations */
+/* Animations désactivées pour éviter les changements de taille */
 @keyframes dragStart {
   0% {
-    transform: scale(1) rotate(0deg);
+    transform: none;
   }
   100% {
-    transform: scale(1.05) rotate(5deg);
+    transform: none;
   }
 }
 
 @keyframes dragEnd {
   0% {
-    transform: scale(1.05) rotate(5deg);
+    transform: none;
   }
   100% {
-    transform: scale(1) rotate(0deg);
+    transform: none;
   }
 }
 

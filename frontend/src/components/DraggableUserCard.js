@@ -16,6 +16,38 @@ const DraggableUserCard = memo(({
 }) => {
   const handleDragStart = (e) => {
     if (onDragStart && binderMode) {
+      // Créer une image personnalisée pour le drag avec taille réduite de 50%
+      const img = e.currentTarget.querySelector('.card-image');
+      if (img && img.complete && img.naturalWidth > 0) {
+        try {
+          // Obtenir les dimensions réelles de l'image affichée
+          const imgRect = img.getBoundingClientRect();
+          const actualWidth = Math.max(imgRect.width, 80); // Minimum 80px
+          const actualHeight = Math.max(imgRect.height, 112); // Minimum 112px
+          
+          // Diviser les dimensions par 2
+          const dragWidth = Math.floor(actualWidth * 0.5);
+          const dragHeight = Math.floor(actualHeight * 0.5);
+          
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (ctx) {
+            // Utiliser les dimensions réduites de moitié
+            canvas.width = dragWidth;
+            canvas.height = dragHeight;
+            
+            // Dessiner l'image directement depuis l'élément HTML
+            ctx.drawImage(img, 0, 0, dragWidth, dragHeight);
+            
+            // Définir l'image de drag personnalisée avec offset au centre
+            e.dataTransfer.setDragImage(canvas, Math.floor(dragWidth / 2), Math.floor(dragHeight / 2));
+          }
+        } catch (error) {
+          console.log('Erreur lors de la création de l\'image de drag:', error);
+        }
+      }
+      
       const dragData = {
         type: 'user-card',
         userCard,

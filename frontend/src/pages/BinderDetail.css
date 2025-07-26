@@ -206,7 +206,10 @@
 
 .page-header {
   margin-bottom: 1.5rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .page-header h3 {
@@ -214,6 +217,15 @@
   font-size: 1.3rem;
   color: var(--text-primary);
   font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.page-header .btn {
+  min-width: 160px;
+  height: 40px;
+  font-size: 0.9rem;
+  border-radius: 8px;
 }
 
 /* Grille des cartes */
