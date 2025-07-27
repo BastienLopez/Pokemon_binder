@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import TCGdexService from '../services/tcgdexService';
 import UserCardsService from '../services/userCardsService';
 import binderService from '../services/binderService';
+import Toast from './Toast';
 import './CardDetailModal.css';
 
 const CardDetailModal = ({ 
@@ -21,13 +22,30 @@ const CardDetailModal = ({
   const [isInCollection, setIsInCollection] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(null);
   const [showAddToBinder, setShowAddToBinder] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    console.log('🟣 showToast appelé:', { message, type, timestamp: new Date().toISOString() });
+    console.trace('🟣 Stack trace de showToast:');
+    setToast({ show: true, message, type });
+  };
+
+  const hideToast = () => {
+    setToast({ show: false, message: '', type: 'success' });
+  };
 
   useEffect(() => {
+    console.log('🟤 useEffect triggered:', { isOpen, card: !!card, user: !!user, userCard });
+    
     if (isOpen && card) {
+      console.log('🟤 Conditions remplies, début de l\'initialisation');
       fetchCardDetails();
       if (user) {
+        console.log('🟤 Utilisateur connecté, récupération des binders');
         fetchUserBinders();
-        setIsInCollection(!!userCard);
+        const inCollection = !!userCard;
+        console.log('🟤 Setting isInCollection to:', inCollection);
+        setIsInCollection(inCollection);
       }
     }
   }, [isOpen, card, user, userCard]);
@@ -83,9 +101,34 @@ const CardDetailModal = ({
   };
 
   const handleAddToCollection = async () => {
+    console.log('🔵 handleAddToCollection called');
+    console.log('🔵 onAddToCollection exists:', !!onAddToCollection);
+    console.log('🔵 card:', card);
+    
     if (onAddToCollection) {
-      await onAddToCollection(card);
-      setIsInCollection(true);
+      try {
+        console.log('🔵 Appel de onAddToCollection...');
+        const result = await onAddToCollection(card);
+        console.log('🔵 Résultat de onAddToCollection:', result);
+        
+        setIsInCollection(true);
+        console.log('🔵 isInCollection mis à true');
+        
+        // Si onAddToCollection retourne l'userCard créée, on l'utilise
+        if (result && result.id) {
+          console.log('🔵 Stockage de window.userCard:', result);
+          window.userCard = result; // Stockage temporaire
+        } else {
+          console.log('🔵 Pas de résultat avec ID, window.userCard non mis à jour');
+        }
+        
+        console.log('🔵 Affichage du toast de succès');
+        showToast('Carte ajoutée à votre collection avec succès !', 'success');
+        
+      } catch (error) {
+        console.error('🔴 Erreur lors de l\'ajout à la collection:', error);
+        showToast('Erreur lors de l\'ajout à la collection', 'error');
+      }
     }
   };
 
@@ -97,36 +140,214 @@ const CardDetailModal = ({
   };
 
   const handleAddToBinder = async () => {
-    if (!selectedBinder || !userCard) return;
+    console.log('🟡 handleAddToBinder called');
+    console.log('🟡 selectedBinder:', selectedBinder);
+    console.log('🟡 userCard prop:', userCard);
+    console.log('🟡 window.userCard:', window.userCard);
+    console.log('🟡 isInCollection:', isInCollection);
+    
+    if (!selectedBinder) {
+      console.log('🔴 Erreur: Pas de binder sélectionné');
+      showToast('Veuillez sélectionner un binder', 'error');
+      return;
+    }
+    
+    // Vérifier si la carte est dans la collection (soit via userCard prop, soit vient d'être ajoutée)
+    const currentUserCard = userCard || window.userCard;
+    console.log('🟡 currentUserCard calculé:', currentUserCard);
+    
+    if (!isInCollection) {
+      console.log('🔴 Erreur: Carte pas dans la collection');
+      showToast('La carte doit d\'abord être dans votre collection', 'error');
+      return;
+    }
+    
+    if (!currentUserCard) {
+      console.log('🔴 Erreur: currentUserCard non trouvé');
+      showToast('Impossible de trouver la carte dans votre collection', 'error');
+      return;
+    }
 
     try {
-      await binderService.addCardToBinder(selectedBinder, {
-        user_card_id: userCard.id,
-        position: 'auto' // Placement automatique
+      console.log('🟡 Tentative d\'ajout au binder:', { 
+        binderId: selectedBinder, 
+        userCardId: currentUserCard.id,
+        currentUserCard: currentUserCard
       });
       
-      // Notification de succès
-      alert(`Carte ajoutée au binder avec succès !`);
+      const binderResult = await binderService.addCardToBinder(selectedBinder, {
+        user_card_id: currentUserCard.id
+        // Pas de position ni page_number pour placement automatique
+      });
+      
+      console.log('🟢 Résultat de addCardToBinder:', binderResult);
+      
+      // Trouver le nom du binder sélectionné
+      const selectedBinderName = userBinders.find(b => b.id === selectedBinder)?.name || 'binder';
+      console.log('🟢 Nom du binder trouvé:', selectedBinderName);
+      
+      showToast(`Carte ajoutée au binder "${selectedBinderName}" avec succès !`, 'success');
       setShowAddToBinder(false);
       setSelectedBinder('');
+      console.log('🟢 Interface mise à jour avec succès');
     } catch (error) {
-      console.error('Erreur lors de l\'ajout au binder:', error);
-      alert('Erreur lors de l\'ajout au binder');
+      console.error('🔴 Erreur lors de l\'ajout au binder:', error);
+      console.error('🔴 Stack trace:', error.stack);
+      showToast('Erreur lors de l\'ajout au binder', 'error');
     }
+  };
+
+  const getCardmarketExpansionId = (setName) => {
+    // Mapping des extensions vers leurs IDs Cardmarket
+    const expansionMapping = {
+      'Neo Discovery': '1532',
+      'Base Set': '1',
+      'Jungle': '2',
+      'Fossil': '3',
+      'Team Rocket': '4',
+      'Gym Heroes': '5',
+      'Gym Challenge': '6',
+      'Neo Genesis': '7',
+      'Neo Revelation': '8',
+      'Neo Destiny': '9',
+      'Legendary Collection': '10',
+      'Expedition Base Set': '11',
+      'Aquapolis': '12',
+      'Skyridge': '13',
+      'Ruby & Sapphire': '14',
+      'Sandstorm': '15',
+      'Dragon': '16',
+      'Team Magma vs Team Aqua': '17',
+      'Hidden Legends': '18',
+      'FireRed & LeafGreen': '19',
+      'Team Rocket Returns': '20',
+      'Deoxys': '21',
+      'Emerald': '22',
+      'Unseen Forces': '23',
+      'Delta Species': '24',
+      'Legend Maker': '25',
+      'Holon Phantoms': '26',
+      'Crystal Guardians': '27',
+      'Dragon Frontiers': '28',
+      'Power Keepers': '29',
+      'Diamond & Pearl': '30',
+      'Mysterious Treasures': '31',
+      'Secret Wonders': '32',
+      'Great Encounters': '33',
+      'Majestic Dawn': '34',
+      'Legends Awakened': '35',
+      'Stormfront': '36',
+      'Platinum': '37',
+      'Rising Rivals': '38',
+      'Supreme Victors': '39',
+      'Arceus': '40',
+      'HeartGold & SoulSilver': '41',
+      'Unleashed': '42',
+      'Undaunted': '43',
+      'Triumphant': '44',
+      'Call of Legends': '45',
+      'Black & White': '46',
+      'Emerging Powers': '47',
+      'Noble Victories': '48',
+      'Next Destinies': '49',
+      'Dark Explorers': '50',
+      'Dragons Exalted': '51',
+      'Boundaries Crossed': '52',
+      'Plasma Storm': '53',
+      'Plasma Freeze': '54',
+      'Plasma Blast': '55',
+      'Legendary Treasures': '56',
+      'XY': '57',
+      'Flashfire': '58',
+      'Furious Fists': '59',
+      'Phantom Forces': '60',
+      'Primal Clash': '61',
+      'Roaring Skies': '62',
+      'Ancient Origins': '63',
+      'BREAKthrough': '64',
+      'BREAKpoint': '65',
+      'Generations': '66',
+      'Fates Collide': '67',
+      'Steam Siege': '68',
+      'Evolutions': '69',
+      'Sun & Moon': '70',
+      'Guardians Rising': '71',
+      'Burning Shadows': '72',
+      'Shining Legends': '73',
+      'Crimson Invasion': '74',
+      'Ultra Prism': '75',
+      'Forbidden Light': '76',
+      'Celestial Storm': '77',
+      'Dragon Majesty': '78',
+      'Lost Thunder': '79',
+      'Team Up': '80',
+      'Detective Pikachu': '81',
+      'Unbroken Bonds': '82',
+      'Unified Minds': '83',
+      'Hidden Fates': '84',
+      'Cosmic Eclipse': '85',
+      'Sword & Shield': '86',
+      'Rebel Clash': '87',
+      'Darkness Ablaze': '88',
+      'Champion\'s Path': '89',
+      'Vivid Voltage': '90',
+      'Shining Fates': '91',
+      'Battle Styles': '92',
+      'Chilling Reign': '93',
+      'Evolving Skies': '94',
+      'Celebrations': '95',
+      'Fusion Strike': '96',
+      'Brilliant Stars': '97',
+      'Astral Radiance': '98',
+      'Pokémon GO': '99',
+      'Lost Origin': '100',
+      'Silver Tempest': '101',
+      'Paldea Evolved': '102',
+      'Obsidian Flames': '103',
+      '151': '104',
+      'Paradox Rift': '105',
+      'Paldean Fates': '106',
+      'Temporal Forces': '107',
+      'Twilight Masquerade': '108',
+      'Shrouded Fable': '109',
+      'Stellar Crown': '110'
+    };
+    
+    return expansionMapping[setName] || '0';
   };
 
   const getExternalLinks = () => {
     if (!cardDetails) return {};
 
     const cardName = encodeURIComponent(cardDetails.name);
-    const setName = encodeURIComponent(cardDetails.set?.name || '');
+    const setName = cardDetails.set?.name || '';
+    const expansionId = getCardmarketExpansionId(setName);
+    const searchQuery = setName ? `${cardName}+${setName}` : cardName;
     
     return {
-      cardmarket: `https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString=${cardName}`,
-      ebay: `https://www.ebay.fr/sch/i.html?_nkw=${cardName}+pokemon+card`,
-      tcgplayer: `https://www.tcgplayer.com/search/pokemon/product?productLineName=pokemon&q=${cardName}`,
-      pricecharting: `https://www.pricecharting.com/search-products?q=${cardName}+pokemon&type=videogames`
+      cardmarket: `https://www.cardmarket.com/fr/Pokemon/Products/Search?searchMode=v2&idCategory=0&idExpansion=${expansionId}&searchString=${cardName}&idRarity=0&perSite=30&mode=gallery`,
+      ebay: `https://www.ebay.fr/sch/i.html?_nkw=${searchQuery}+pokemon+card`,
+      tcgplayer: `https://www.tcgplayer.com/search/pokemon/product?productLineName=pokemon&q=${searchQuery}`,
+      pricecharting: `https://www.pricecharting.com/search-products?q=${searchQuery}+pokemon&type=videogames`
     };
+  };
+
+  const getEnergyIcon = (energyType) => {
+    const energyIcons = {
+      'Plante': '🌿',
+      'Feu': '🔥',
+      'Eau': '💧',
+      'Électrique': '⚡',
+      'Psy': '🔮',
+      'Combat': '👊',
+      'Obscurité': '🌑',
+      'Métal': '⚙️',
+      'Incolore': '⚪',
+      'Dragon': '🐉',
+      'Fée': '🧚'
+    };
+
+    return energyIcons[energyType] || '⚪';
   };
 
   const handleShare = (platform) => {
@@ -155,6 +376,13 @@ const CardDetailModal = ({
         <button className="modal-close" onClick={onClose} aria-label="Fermer">
           ×
         </button>
+
+        <Toast 
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.show}
+          onClose={hideToast}
+        />
 
         {loading ? (
           <div className="modal-loading">
@@ -268,8 +496,12 @@ const CardDetailModal = ({
                         {attack.cost && attack.cost.length > 0 && (
                           <div className="attack-cost">
                             {attack.cost.map((cost, costIndex) => (
-                              <span key={costIndex} className={`energy-cost energy-${cost.toLowerCase()}`}>
-                                {cost}
+                              <span 
+                                key={costIndex} 
+                                className={`energy-cost energy-${cost.toLowerCase()}`}
+                                title={cost}
+                              >
+                                {getEnergyIcon(cost)}
                               </span>
                             ))}
                           </div>

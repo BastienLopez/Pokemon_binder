@@ -120,6 +120,8 @@ const Cards = ({ showHeader = true }) => {
   };
 
   const addToCollection = async (card) => {
+    console.log('🔶 Cards.js addToCollection called'); // Debug log
+    
     if (!user) {
       setNotification({
         isVisible: true,
@@ -140,12 +142,17 @@ const Cards = ({ showHeader = true }) => {
 
     try {
       const cardData = UserCardsService.formatCardForCollection(card, currentSet, 1);
-      await UserCardsService.addUserCard(cardData);
-      setNotification({
-        isVisible: true,
-        message: `"${card.name}" ajoutée à votre collection !`,
-        type: 'success'
-      });
+      const userCard = await UserCardsService.addUserCard(cardData);
+      console.log('🔶 Cards.js userCard créée:', userCard); // Debug log
+      
+      // Ne pas afficher de notification ici - c'est CardDetailModal qui s'en charge
+      // setNotification({
+      //   isVisible: true,
+      //   message: `"${card.name}" ajoutée à votre collection !`,
+      //   type: 'success'
+      // });
+      
+      return userCard; // Retourner l'userCard pour CardDetailModal
     } catch (error) {
       console.error('Erreur lors de l\'ajout:', error);
       if (error.message.includes('Token')) {
@@ -161,6 +168,7 @@ const Cards = ({ showHeader = true }) => {
           type: 'error'
         });
       }
+      throw error; // Re-lancer l'erreur pour que CardDetailModal puisse la gérer
     }
   };
 

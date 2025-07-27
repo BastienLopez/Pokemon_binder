@@ -11,6 +11,7 @@ import useCardComparison from '../hooks/useCardComparison';
 import './MyCards.css';
 
 const MyCards = () => {
+  console.log('🚀 [MyCards] Composant MyCards chargé/rechargé - TEST DE CHANGEMENT LIVE');
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -195,6 +196,7 @@ const MyCards = () => {
 
   // Fonctions pour le modal détaillé
   const openCardDetail = (card) => {
+    console.log('🔍 [MyCards] openCardDetail appelé avec:', card);
     setSelectedCardForDetail(card);
     setIsDetailModalOpen(true);
   };
@@ -486,13 +488,21 @@ const MyCards = () => {
       ) : (
         <div className={`cards-grid ${getGridClass()}`} key={binderSize}>
           {getFilteredCards().map(card => {
+            console.log('🃏 [MyCards] Rendu de la carte:', card.card_name);
             const isSelected = binderMode && selectedCards.find(c => c.id === card.id);
             return (
               <div 
                 key={card.id} 
                 className={`user-card-item ${binderMode ? 'binder-mode' : ''} ${isSelected ? 'selected' : ''}`}
               >
-                <div className="card-image-container">
+                <div 
+                  className="card-image-container card-image-clickable"
+                  onClick={() => {
+                    console.log('🖱️ [MyCards] Clic sur image de:', card.card_name);
+                    openCardDetail(card);
+                  }}
+                  title="Cliquer pour voir les détails"
+                >
                   <img 
                     src={getCardImageUrl(card)} 
                     alt={card.card_name}
@@ -512,7 +522,16 @@ const MyCards = () => {
                 
                 <div className="card-info">
                   <div className="card-content">
-                    <h4>{card.card_name}</h4>
+                    <h4 
+                      onClick={() => {
+                        console.log('🖱️ [MyCards] Clic sur nom de:', card.card_name);
+                        openCardDetail(card);
+                      }} 
+                      className="card-name-clickable"
+                      title="Cliquer pour voir les détails"
+                    >
+                      {card.card_name}
+                    </h4>
                     <p className="set-name">{card.set_name}</p>
                     {card.rarity && <p className="rarity">Rareté: {card.rarity}</p>}
                     <p className="condition">État: {card.condition}</p>

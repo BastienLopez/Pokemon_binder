@@ -1206,3 +1206,28 @@
 .btn-comparison-floating:active {
   transform: translateY(0);
 }
+
+/* Styles pour les éléments cliquables */
+.card-image-clickable {
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-image-clickable:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-image-clickable:hover img {
+  transform: scale(1.03);
+}
+
+.card-name-clickable {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.card-name-clickable:hover {
+  color: #667eea;
+  text-decoration: underline;
+}
