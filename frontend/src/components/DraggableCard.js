@@ -12,7 +12,9 @@ const DraggableCard = memo(({
   onDragStart,
   onDragEnd,
   onRemove,
-  isPreviewMode = false 
+  isPreviewMode = false,
+  onCardClick,
+  onAddToComparison
 }) => {
   const handleDragStart = (e) => {
     if (onDragStart) {
@@ -34,6 +36,24 @@ const DraggableCard = memo(({
     }
   };
 
+  const handleCardClick = (e) => {
+    // Ne pas déclencher le clic si on est en train de glisser
+    if (isDragging) return;
+    
+    e.stopPropagation();
+    if (onCardClick) {
+      onCardClick(card);
+    }
+  };
+
+  const handleAddToComparisonClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onAddToComparison) {
+      onAddToComparison(card);
+    }
+  };
+
   return (
     <div 
       className={`draggable-card ${isDragging ? 'dragging' : ''} ${isPreviewMode ? 'preview-mode' : ''}`}
@@ -41,7 +61,7 @@ const DraggableCard = memo(({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="card-content">
+      <div className="card-content" onClick={handleCardClick}>
         <img
           src={imageUrl}
           alt={card.card_name || `Carte ${card.card_id}`}
@@ -61,6 +81,18 @@ const DraggableCard = memo(({
             <div className="drag-handle" title="Cliquez et glissez pour déplacer">
               <span className="drag-icon">⌘</span>
             </div>
+            
+            {/* Bouton de comparaison */}
+            {onAddToComparison && (
+              <button
+                className="comparison-btn"
+                onClick={handleAddToComparisonClick}
+                title="Ajouter à la comparaison"
+                type="button"
+              >
+                📊
+              </button>
+            )}
           </div>
         )}
         

@@ -6,6 +6,9 @@ import TCGdexService from '../services/tcgdexService';
 import Notification from '../components/Notification';
 import DraggableCard from '../components/DraggableCard';
 import DroppableSlot from '../components/DroppableSlot';
+import CardDetailModal from '../components/CardDetailModal';
+import CardComparison from '../components/CardComparison';
+import useCardComparison from '../hooks/useCardComparison';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import './BinderDetail.css';
 import './UserDashboard.css'; // Importer les styles de la sidebar
@@ -19,6 +22,23 @@ const BinderDetail = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+
+  // États pour le modal détaillé
+  const [selectedCardForDetail, setSelectedCardForDetail] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  
+  // Hook de comparaison
+  const {
+    selectedCards: comparisonCards,
+    isComparisonOpen,
+    addCardToComparison,
+    removeCardFromComparison,
+    clearComparison,
+    openComparison,
+    closeComparison,
+    isCardSelected,
+    hasCards: hasComparisonCards
+  } = useCardComparison();
 
   // Callback pour gérer le déplacement de carte par drag & drop
   const handleCardMove = useCallback(async (sourceSlot, targetSlot, card) => {
@@ -131,6 +151,23 @@ const BinderDetail = () => {
     // TODO: Ouvrir un modal de sélection de carte ou naviguer vers les cartes
     console.log('Clic sur slot:', { pageNumber, position });
     showNotification('🚧 Sélection de carte à implémenter', 'info');
+  };
+
+  // Fonctions pour le modal détaillé
+  const openCardDetail = (card) => {
+    setSelectedCardForDetail(card);
+    setIsDetailModalOpen(true);
+  };
+
+  const closeCardDetail = () => {
+    setIsDetailModalOpen(false);
+    setSelectedCardForDetail(null);
+  };
+
+  // Fonctions pour la comparaison
+  const handleAddToComparison = (card) => {
+    addCardToComparison(card);
+    showNotification(`✅ ${card.name} ajoutée à la comparaison`, 'success');
   };
 
   const getGridDimensions = (size) => {
@@ -407,6 +444,16 @@ const BinderDetail = () => {
                 <button className="btn btn-primary add-page-btn" onClick={handleAddPage}>
                   Ajouter une page
                 </button>
+                
+                {hasComparisonCards && (
+                  <button 
+                    className="btn btn-secondary comparison-btn"
+                    onClick={openComparison}
+                    title={`Comparer ${comparisonCards.length} carte(s)`}
+                  >
+                    📊 Comparer ({comparisonCards.length})
+                  </button>
+                )}
               </div>
             </div>
 
@@ -466,6 +513,8 @@ const BinderDetail = () => {
                           onDragStart={handlers.onDragStart}
                           onDragEnd={handlers.onDragEnd}
                           onRemove={handleRemoveCard}
+                          onCardClick={openCardDetail}
+                          onAddToComparison={handleAddToComparison}
                         />
                       ) : null}
                     </DroppableSlot>
@@ -483,6 +532,24 @@ const BinderDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de détail de carte */}
+      {isDetailModalOpen && selectedCardForDetail && (
+        <CardDetailModal
+          card={selectedCardForDetail}
+          isOpen={isDetailModalOpen}
+          onClose={closeCardDetail}
+        />
+      )}
+
+      {/* Composant de comparaison */}
+      <CardComparison
+        selectedCards={comparisonCards}
+        isOpen={isComparisonOpen}
+        onClose={closeComparison}
+        onRemoveCard={removeCardFromComparison}
+        onClearAll={clearComparison}
+      />
     </div>
   );
 };

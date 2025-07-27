@@ -11,6 +11,7 @@
   align-items: center;
   z-index: 1000;
   padding: 20px;
+  overflow-y: auto;
 }
 
 .card-detail-modal {
@@ -22,13 +23,16 @@
   position: relative;
   overflow-y: auto;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-close {
   position: absolute;
   top: 15px;
   right: 20px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   font-size: 24px;
   width: 35px;
@@ -41,28 +45,37 @@
   z-index: 10;
   color: #666;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .modal-close:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 1);
   color: #000;
+  transform: scale(1.1);
 }
 
 .modal-loading {
   padding: 60px;
   text-align: center;
   color: #666;
+  font-size: 16px;
 }
 
 .modal-content {
   padding: 20px;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-main {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 30px;
   margin-bottom: 30px;
+  align-items: start;
+  width: 100%;
 }
 
 /* Section image */
@@ -70,11 +83,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 300px;
 }
 
 .card-image-large {
   width: 100%;
-  max-width: 350px;
+  max-width: 280px;
   height: auto;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -87,116 +102,179 @@
 }
 
 .price-section {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px;
   text-align: center;
   width: 100%;
-  max-width: 350px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .price-section h4 {
-  margin: 0 0 10px 0;
-  color: #333;
+  margin: 0 0 15px 0;
+  color: white;
   font-size: 14px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  opacity: 0.9;
 }
 
 .price-info {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .current-price {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
-  color: #2c3e50;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .price-trend {
-  font-size: 14px;
-  padding: 4px 8px;
-  border-radius: 4px;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .price-trend.up {
-  background: #d4edda;
-  color: #155724;
+  background: rgba(255, 255, 255, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.5);
 }
 
 .price-trend.down {
-  background: #f8d7da;
-  color: #721c24;
+  background: rgba(255, 255, 255, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.5);
 }
 
 /* Section informations */
 .card-info-section {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
+  min-width: 0; /* Fix pour éviter l'overflow */
+  max-width: 100%;
+  overflow: hidden;
+  flex: 1;
+  width: 100%;
+}
+
+.card-header {
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+  width: 100%;
 }
 
 .card-header h2 {
-  margin: 0 0 5px 0;
-  color: #2c3e50;
-  font-size: 28px;
+  margin: 0 0 8px 0;
+  color: #1a202c;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  width: 100%;
 }
 
 .card-number {
-  color: #666;
+  color: #718096;
   font-size: 16px;
   margin: 0;
+  font-weight: 500;
+  width: 100%;
 }
 
 .card-details {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  background: #f7fafc;
+  padding: 20px;
+  border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .detail-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .detail-item label {
-  font-weight: bold;
-  color: #555;
-  min-width: 100px;
-  font-size: 14px;
-}
-
-.detail-item span {
-  color: #333;
-}
-
-/* Badges de rareté */
-.rarity-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
+  font-weight: 600;
+  color: #4a5568;
   font-size: 12px;
-  font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.rarity-common { background: #95a5a6; color: white; }
-.rarity-uncommon { background: #3498db; color: white; }
-.rarity-rare { background: #e74c3c; color: white; }
-.rarity-rare-holo { background: #9b59b6; color: white; }
-.rarity-ultra-rare { background: #f39c12; color: white; }
-.rarity-secret-rare { background: #1abc9c; color: white; }
-.rarity-hyper-rare { background: #34495e; color: white; }
+.detail-item span {
+  color: #1a202c;
+  font-size: 16px;
+  font-weight: 500;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Badges de rareté */
+.rarity-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rarity-common { 
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d); 
+  color: white; 
+}
+.rarity-uncommon { 
+  background: linear-gradient(135deg, #3498db, #2980b9); 
+  color: white; 
+}
+.rarity-rare { 
+  background: linear-gradient(135deg, #e74c3c, #c0392b); 
+  color: white; 
+}
+.rarity-rare-holo { 
+  background: linear-gradient(135deg, #9b59b6, #8e44ad); 
+  color: white; 
+}
+.rarity-ultra-rare { 
+  background: linear-gradient(135deg, #f39c12, #e67e22); 
+  color: white; 
+}
+.rarity-secret-rare { 
+  background: linear-gradient(135deg, #1abc9c, #16a085); 
+  color: white; 
+}
+.rarity-hyper-rare { 
+  background: linear-gradient(135deg, #34495e, #2c3e50); 
+  color: white; 
+}
 
 /* Types de Pokémon */
 .types-list {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -229,6 +307,8 @@
 /* Section attaques */
 .attacks-section {
   margin-top: 20px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .attacks-section h4 {
@@ -236,6 +316,8 @@
   color: #2c3e50;
   border-bottom: 2px solid #3498db;
   padding-bottom: 5px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .attack-item {
@@ -243,6 +325,16 @@
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 10px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.attack-item:hover {
+  background: #e9ecef;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .attack-header {
@@ -250,19 +342,27 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .attack-name {
   font-weight: bold;
   color: #2c3e50;
+  font-size: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .attack-damage {
   background: #e74c3c;
   color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-weight: bold;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
 }
 
 .attack-effect {
@@ -270,17 +370,29 @@
   font-size: 14px;
   margin: 8px 0;
   line-height: 1.4;
+  padding: 8px 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .attack-cost {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   margin-top: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.attack-cost::before {
+  content: "Coût : ";
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
 }
 
 .energy-cost {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   font-size: 10px;
   font-weight: bold;
@@ -288,6 +400,10 @@
   align-items: center;
   justify-content: center;
   color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .energy-grass { background: #78c850; }
@@ -302,15 +418,27 @@
 
 /* Informations de collection */
 .collection-info {
-  background: #e8f5e8;
-  padding: 15px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #e8f5e8, #f0f9ff);
+  padding: 20px;
+  border-radius: 12px;
   margin-top: 15px;
+  border: 2px solid #27ae60;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.1);
 }
 
 .collection-info h4 {
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
   color: #27ae60;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.collection-info h4::before {
+  content: "📋";
+  font-size: 20px;
 }
 
 /* Actions du modal */
@@ -488,10 +616,12 @@
 @media (max-width: 768px) {
   .modal-overlay {
     padding: 10px;
+    align-items: flex-start;
   }
 
   .card-detail-modal {
     max-height: 95vh;
+    margin-top: 20px;
   }
 
   .modal-main {
@@ -499,16 +629,28 @@
     gap: 20px;
   }
 
+  .card-image-section {
+    align-items: center;
+    min-width: auto;
+  }
+
   .card-image-large {
     max-width: 280px;
   }
 
+  .card-details {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
   .collection-controls {
     flex-direction: column;
+    gap: 12px;
   }
 
   .links-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
   .share-buttons {
@@ -519,9 +661,27 @@
     flex-direction: column;
     align-items: stretch;
   }
+
+  .attack-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .attack-name {
+    font-size: 15px;
+  }
+
+  .attacks-section h4 {
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
+  .modal-overlay {
+    padding: 5px;
+  }
+
   .modal-content {
     padding: 15px;
   }
@@ -531,17 +691,56 @@
   }
 
   .card-image-large {
-    max-width: 250px;
+    max-width: 220px;
   }
 
   .price-info {
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+  }
+
+  .current-price {
+    font-size: 24px;
+  }
+
+  .links-grid {
+    grid-template-columns: 1fr;
   }
 
   .attack-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+  }
+
+  .share-buttons {
+    flex-direction: column;
+  }
+
+  .share-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .attack-item {
+    padding: 12px;
+  }
+
+  .attack-effect {
+    font-size: 13px;
+  }
+
+  .energy-cost {
+    width: 20px;
+    height: 20px;
+    font-size: 9px;
+  }
+
+  .attacks-section h4 {
+    font-size: 15px;
+  }
+
+  .card-details {
+    padding: 15px;
   }
 }

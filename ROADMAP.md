@@ -268,6 +268,7 @@ Améliorer l'expérience utilisateur avec des interactions riches sur les cartes
     * [x] Statistiques de la carte (HP, attaques, etc.) ✅
     * [x] Prix estimé (si disponible via API) ✅
     * [x] Actions contextuelles (ajouter/retirer de collection/binder) ✅
+    * [x] **Intégration dans toutes les pages** (Cards, MyCards, BinderDetail) ✅
 
 * [x] **Intégrations externes** :
   * [x] Lien direct vers Cardmarket.com ✅

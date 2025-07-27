@@ -107,6 +107,29 @@
   line-height: 1;
 }
 
+.comparison-btn {
+  background: rgba(155, 89, 182, 0.9);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  min-height: 20px;
+  cursor: pointer;
+  user-select: none;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+.comparison-btn:hover {
+  background: rgba(155, 89, 182, 1);
+  transform: scale(1.1);
+}
+
 .remove-card-btn {
   background: rgba(231, 76, 60, 0.9);
   color: white;
