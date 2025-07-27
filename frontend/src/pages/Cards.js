@@ -47,8 +47,9 @@ const Cards = ({ showHeader = true }) => {
     isCardSelected,
     canAddMore,
     hasCards,
+    canCompare,
     count: comparisonCount
-  } = useCardComparison(4);
+  } = useCardComparison(5);
 
   // Charger la liste des séries au montage du composant
   useEffect(() => {
@@ -193,13 +194,13 @@ const Cards = ({ showHeader = true }) => {
       addCardToComparison(card);
       setNotification({
         isVisible: true,
-        message: `"${card.name}" ajoutée à la comparaison (${comparisonCount + 1}/4)`,
+        message: `"${card.name}" ajoutée à la comparaison (${comparisonCount + 1}/5)`,
         type: 'success'
       });
     } else {
       setNotification({
         isVisible: true,
-        message: 'Comparaison pleine (4 cartes max). La plus ancienne a été remplacée.',
+        message: 'Comparaison pleine (5 cartes max). La plus ancienne a été remplacée.',
         type: 'info'
       });
       addCardToComparison(card);
@@ -296,7 +297,7 @@ const Cards = ({ showHeader = true }) => {
               {loading ? 'Chargement...' : 'Afficher la série'}
             </button>
 
-            {hasCards && (
+            {canCompare && (
               <button 
                 className="comparison-btn" 
                 onClick={openComparison}

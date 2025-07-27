@@ -76,7 +76,25 @@ const CardComparison = ({
   };
 
   const getComparisonData = () => {
-    if (cardDetails.length === 0) return {};
+    if (cardDetails.length === 0) {
+      return {
+        names: [],
+        images: [],
+        sets: [],
+        rarities: [],
+        types: [],
+        hp: [],
+        attacks: [],
+        prices: [],
+        illustrators: [],
+        localIds: []
+      };
+    }
+
+    // Log temporaire pour voir la structure des attaques
+    if (cardDetails.length > 0 && cardDetails[0].attacks) {
+      console.log('🔍 Structure des attaques:', cardDetails[0].attacks);
+    }
 
     return {
       names: cardDetails.map(card => card.name),
@@ -94,6 +112,15 @@ const CardComparison = ({
 
   const renderComparisonTable = () => {
     const data = getComparisonData();
+    
+    // Vérifier que les données sont disponibles
+    if (!data.images || data.images.length === 0) {
+      return (
+        <div className="empty-comparison">
+          <p>Aucune donnée de comparaison disponible.</p>
+        </div>
+      );
+    }
     
     if (comparisonMode === 'details') {
       return (
@@ -223,8 +250,15 @@ const CardComparison = ({
                 <div className="attacks-summary">
                   {attacks.map((attack, attackIndex) => (
                     <div key={attackIndex} className="attack-summary">
-                      <strong>{attack.name}</strong>
-                      {attack.damage && <span className="damage">({attack.damage})</span>}
+                      <div className="attack-header">
+                        <strong>{attack.name}</strong>
+                        {attack.damage && <span className="damage">({attack.damage})</span>}
+                      </div>
+                      {(attack.effect || attack.description || attack.text) && (
+                        <div className="attack-description">
+                          {attack.effect || attack.description || attack.text}
+                        </div>
+                      )}
                     </div>
                   ))}
                   {attacks.length === 0 && <span className="no-attacks">Aucune attaque</span>}
@@ -293,6 +327,13 @@ const CardComparison = ({
         </div>
       );
     }
+    
+    // Valeur de retour par défaut si aucun mode ne correspond
+    return (
+      <div className="empty-comparison">
+        <p>Mode de comparaison non reconnu.</p>
+      </div>
+    );
   };
 
   const getRarityValue = (rarity) => {
@@ -324,6 +365,12 @@ const CardComparison = ({
           <div className="empty-comparison">
             <p>Aucune carte sélectionnée pour la comparaison.</p>
             <p>Cliquez sur le bouton "Comparer" sur les cartes que vous souhaitez comparer.</p>
+          </div>
+        ) : selectedCards.length === 1 ? (
+          <div className="empty-comparison">
+            <p>Une seule carte sélectionnée.</p>
+            <p>Ajoutez au moins une autre carte pour commencer la comparaison.</p>
+            <p>Vous pouvez comparer de 2 à 5 cartes simultanément.</p>
           </div>
         ) : (
           <>
@@ -395,7 +442,7 @@ const CardComparison = ({
 
         <div className="comparison-footer">
           <p className="comparison-tip">
-            💡 Astuce : Vous pouvez comparer jusqu'à 4 cartes simultanément
+            💡 Astuce : Vous pouvez comparer de 2 à 5 cartes simultanément
           </p>
         </div>
       </div>

@@ -66,7 +66,8 @@ const MyCards = () => {
     openComparison,
     closeComparison,
     isCardSelected,
-    hasCards: hasComparisonCards
+    hasCards: hasComparisonCards,
+    canCompare
   } = useCardComparison();
 
   const conditions = [
@@ -777,7 +778,7 @@ const MyCards = () => {
       />
 
       {/* Bouton flottant de comparaison */}
-      {hasComparisonCards && (
+      {canCompare && (
         <div className="floating-comparison-button">
           <button 
             className="btn-comparison-floating"

@@ -37,7 +37,8 @@ const BinderDetail = () => {
     openComparison,
     closeComparison,
     isCardSelected,
-    hasCards: hasComparisonCards
+    hasCards: hasComparisonCards,
+    canCompare
   } = useCardComparison();
 
   // Callback pour gérer le déplacement de carte par drag & drop
@@ -445,7 +446,7 @@ const BinderDetail = () => {
                   Ajouter une page
                 </button>
                 
-                {hasComparisonCards && (
+                {canCompare && (
                   <button 
                     className="btn btn-secondary comparison-btn"
                     onClick={openComparison}

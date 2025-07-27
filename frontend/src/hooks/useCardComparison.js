@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-const useCardComparison = (maxCards = 4) => {
+const useCardComparison = (maxCards = 5) => {
   const [selectedCards, setSelectedCards] = useState([]);
   const [isComparisonOpen, setIsComparisonOpen] = useState(false);
 
@@ -44,6 +44,7 @@ const useCardComparison = (maxCards = 4) => {
 
   const canAddMore = selectedCards.length < maxCards;
   const hasCards = selectedCards.length > 0;
+  const canCompare = selectedCards.length >= 2;
 
   return {
     selectedCards,
@@ -56,6 +57,7 @@ const useCardComparison = (maxCards = 4) => {
     isCardSelected,
     canAddMore,
     hasCards,
+    canCompare,
     count: selectedCards.length,
     maxCards
   };
