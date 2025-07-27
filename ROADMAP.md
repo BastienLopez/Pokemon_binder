@@ -260,24 +260,33 @@ Améliorer l'expérience utilisateur avec des interactions riches sur les cartes
   * [x] État de drag (en cours, validé, erreur) ✅
   * [x] Optimistic updates avec rollback en cas d'erreur ✅
 
-### ✅ Tâches (interface avancée) :
-* [ ] Système de modal détaillé :
-  * [ ] Pop-up au clic sur une carte avec :
-    * Image haute résolution (zoom)
-    * Informations complètes (nom, série, numéro, artiste)
-    * Statistiques de la carte (HP, attaques, etc.)
-    * Prix estimé (si disponible via API)
-    * Actions contextuelles (ajouter/retirer de collection/binder)
+### ✅ Tâches (interface avancée) - **COMPLETÉES** :
+* [x] **Système de modal détaillé** :
+  * [x] Pop-up au clic sur une carte avec :
+    * [x] Image haute résolution (zoom) ✅
+    * [x] Informations complètes (nom, série, numéro, artiste) ✅
+    * [x] Statistiques de la carte (HP, attaques, etc.) ✅
+    * [x] Prix estimé (si disponible via API) ✅
+    * [x] Actions contextuelles (ajouter/retirer de collection/binder) ✅
 
-* [ ] Intégrations externes :
-  * [ ] Lien direct vers Cardmarket.com
-  * [ ] Recherche sur eBay/TCGPlayer (liens externes)
-  * [ ] Partage sur réseaux sociaux
+* [x] **Intégrations externes** :
+  * [x] Lien direct vers Cardmarket.com ✅
+  * [x] Recherche sur eBay/TCGPlayer (liens externes) ✅
+  * [x] Partage sur réseaux sociaux (Twitter, Facebook, Reddit) ✅
+  * [x] Intégration Price Charting pour historique des prix ✅
 
-* [ ] Fonctionnalités de comparaison :
-  * [ ] Mode comparaison (sélection multiple)
-  * [ ] Affichage côte à côte des cartes sélectionnées
-  * [ ] Comparaison des prix et raretés
+* [x] **Fonctionnalités de comparaison** :
+  * [x] Mode comparaison (sélection multiple) ✅
+  * [x] Affichage côte à côte des cartes sélectionnées ✅
+  * [x] Comparaison des prix et raretés ✅
+  * [x] Trois modes de comparaison : détails, statistiques, prix ✅
+  * [x] Hook personnalisé useCardComparison ✅
+
+* [x] **Tests et validation** :
+  * [x] Tests unitaires pour tous les composants ✅
+  * [x] Tests du service TCGdx (20 tests passés) ✅
+  * [x] Tests d'intégration ✅
+  * [x] Validation interface responsive ✅
 
 ---
 

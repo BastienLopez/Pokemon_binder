@@ -5,6 +5,9 @@ import UserCardsService from '../services/userCardsService';
 import TCGdexService from '../services/tcgdexService';
 import binderService from '../services/binderService';
 import ConfirmModal from '../components/ConfirmModal';
+import CardDetailModal from '../components/CardDetailModal';
+import CardComparison from '../components/CardComparison';
+import useCardComparison from '../hooks/useCardComparison';
 import './MyCards.css';
 
 const MyCards = () => {
@@ -47,6 +50,23 @@ const MyCards = () => {
     message: '',
     type: 'success'
   });
+
+  // États pour le modal détaillé
+  const [selectedCardForDetail, setSelectedCardForDetail] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  
+  // Hook de comparaison
+  const {
+    selectedCards: comparisonCards,
+    isComparisonOpen,
+    addCardToComparison,
+    removeCardFromComparison,
+    clearComparison,
+    openComparison,
+    closeComparison,
+    isCardSelected,
+    hasCards: hasComparisonCards
+  } = useCardComparison();
 
   const conditions = [
     'Mint',
@@ -171,6 +191,27 @@ const MyCards = () => {
 
   const closeConfirmModal = () => {
     setConfirmModal({ ...confirmModal, isOpen: false });
+  };
+
+  // Fonctions pour le modal détaillé
+  const openCardDetail = (card) => {
+    setSelectedCardForDetail(card);
+    setIsDetailModalOpen(true);
+  };
+
+  const closeCardDetail = () => {
+    setIsDetailModalOpen(false);
+    setSelectedCardForDetail(null);
+  };
+
+  // Fonctions pour la comparaison
+  const handleAddToComparison = (card) => {
+    addCardToComparison(card);
+    setFloatingNotification({
+      show: true,
+      message: `"${card.card_name}" ajoutée à la comparaison`,
+      type: 'success'
+    });
   };
 
   const getTotalCards = () => {
@@ -488,6 +529,21 @@ const MyCards = () => {
                     ) : (
                       <>
                         <button 
+                          className="btn-detail" 
+                          onClick={() => openCardDetail(card)}
+                          title="Voir les détails"
+                        >
+                          👁️ Détails
+                        </button>
+                        <button 
+                          className={`btn-compare ${isCardSelected(card.card_id) ? 'selected' : ''}`}
+                          onClick={() => handleAddToComparison(card)}
+                          disabled={isCardSelected(card.card_id)}
+                          title={isCardSelected(card.card_id) ? 'Déjà en comparaison' : 'Ajouter à la comparaison'}
+                        >
+                          {isCardSelected(card.card_id) ? '✓' : '🔄'}
+                        </button>
+                        <button 
                           className="btn-edit" 
                           onClick={() => handleEditCard(card)}
                         >
@@ -679,6 +735,36 @@ const MyCards = () => {
                 ✓ Ajouter {selectedCards.length} carte(s) au binder
               </>
             )}
+          </button>
+        </div>
+      )}
+
+      {/* Modal détaillé */}
+      <CardDetailModal
+        card={selectedCardForDetail}
+        isOpen={isDetailModalOpen}
+        onClose={closeCardDetail}
+        userCard={selectedCardForDetail}
+        onRemoveFromCollection={confirmDeleteCard}
+      />
+
+      {/* Modal de comparaison */}
+      <CardComparison
+        isOpen={isComparisonOpen}
+        onClose={closeComparison}
+        selectedCards={comparisonCards}
+        onRemoveCard={removeCardFromComparison}
+        onClearComparison={clearComparison}
+      />
+
+      {/* Bouton flottant de comparaison */}
+      {hasComparisonCards && (
+        <div className="floating-comparison-button">
+          <button 
+            className="btn-comparison-floating"
+            onClick={openComparison}
+          >
+            🔄 Comparer ({comparisonCards.length})
           </button>
         </div>
       )}

@@ -3,6 +3,9 @@ import Header from '../components/Header';
 import TCGdexService from '../services/tcgdexService';
 import UserCardsService from '../services/userCardsService';
 import Notification from '../components/Notification';
+import CardDetailModal from '../components/CardDetailModal';
+import CardComparison from '../components/CardComparison';
+import useCardComparison from '../hooks/useCardComparison';
 import { useAuth } from '../contexts/AuthContext';
 import './Cards.css';
 
@@ -27,6 +30,25 @@ const Cards = ({ showHeader = true }) => {
     message: '',
     type: 'success'
   });
+  
+  // États pour le modal détaillé
+  const [selectedCardForDetail, setSelectedCardForDetail] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  
+  // Hook de comparaison
+  const {
+    selectedCards,
+    isComparisonOpen,
+    addCardToComparison,
+    removeCardFromComparison,
+    clearComparison,
+    openComparison,
+    closeComparison,
+    isCardSelected,
+    canAddMore,
+    hasCards,
+    count: comparisonCount
+  } = useCardComparison(4);
 
   // Charger la liste des séries au montage du composant
   useEffect(() => {
@@ -146,6 +168,36 @@ const Cards = ({ showHeader = true }) => {
     setNotification({ ...notification, isVisible: false });
   };
 
+  // Fonctions pour le modal détaillé
+  const openCardDetail = (card) => {
+    setSelectedCardForDetail(card);
+    setIsDetailModalOpen(true);
+  };
+
+  const closeCardDetail = () => {
+    setIsDetailModalOpen(false);
+    setSelectedCardForDetail(null);
+  };
+
+  // Fonctions pour la comparaison
+  const handleAddToComparison = (card) => {
+    if (canAddMore) {
+      addCardToComparison(card);
+      setNotification({
+        isVisible: true,
+        message: `"${card.name}" ajoutée à la comparaison (${comparisonCount + 1}/4)`,
+        type: 'success'
+      });
+    } else {
+      setNotification({
+        isVisible: true,
+        message: 'Comparaison pleine (4 cartes max). La plus ancienne a été remplacée.',
+        type: 'info'
+      });
+      addCardToComparison(card);
+    }
+  };
+
   const filteredCards = TCGdexService.filterCards(cards, filters);
 
   const getGridClass = () => {
@@ -227,13 +279,25 @@ const Cards = ({ showHeader = true }) => {
             </select>
           </div>
 
-          <button 
-            className="generate-btn" 
-            onClick={fetchCards}
-            disabled={!selectedSerie || !selectedSet || loading}
-          >
-            {loading ? 'Chargement...' : 'Afficher la série'}
-          </button>
+          <div className="control-group">
+            <button 
+              className="generate-btn" 
+              onClick={fetchCards}
+              disabled={!selectedSerie || !selectedSet || loading}
+            >
+              {loading ? 'Chargement...' : 'Afficher la série'}
+            </button>
+
+            {hasCards && (
+              <button 
+                className="comparison-btn" 
+                onClick={openComparison}
+                title={`Voir la comparaison (${comparisonCount} cartes)`}
+              >
+                🔄 Comparaison ({comparisonCount})
+              </button>
+            )}
+          </div>
         </div>
 
         {cards.length > 0 && (
@@ -282,6 +346,9 @@ const Cards = ({ showHeader = true }) => {
                     src={getImageUrl(card)} 
                     alt={card.name}
                     loading="lazy"
+                    onClick={() => openCardDetail(card)}
+                    className="card-image-clickable"
+                    title="Cliquer pour voir les détails"
                     onError={(e) => {
                       e.target.src = '/placeholder-card.png';
                       e.target.alt = 'Image non disponible';
@@ -289,19 +356,32 @@ const Cards = ({ showHeader = true }) => {
                   />
                 </div>
                 <div className="card-info">
-                  <h4>{card.name}</h4>
+                  <h4 onClick={() => openCardDetail(card)} className="card-name-clickable">
+                    {card.name}
+                  </h4>
                   <p>#{card.localId}</p>
                   {card.rarity && <p className="rarity">Rareté: {card.rarity}</p>}
                   
-                  {user && (
+                  <div className="card-actions">
+                    {user && (
+                      <button 
+                        className="add-to-collection-btn"
+                        onClick={() => addToCollection(card)}
+                        title="Ajouter à ma collection"
+                      >
+                        + Collection
+                      </button>
+                    )}
+                    
                     <button 
-                      className="add-to-collection-btn"
-                      onClick={() => addToCollection(card)}
-                      title="Ajouter à ma collection"
+                      className={`comparison-btn-card ${isCardSelected(card.id) ? 'selected' : ''}`}
+                      onClick={() => handleAddToComparison(card)}
+                      title={isCardSelected(card.id) ? 'Déjà en comparaison' : 'Ajouter à la comparaison'}
+                      disabled={isCardSelected(card.id)}
                     >
-                      + Collection
+                      {isCardSelected(card.id) ? '✓' : '🔄'}
                     </button>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -322,6 +402,23 @@ const Cards = ({ showHeader = true }) => {
         type={notification.type}
         onClose={closeNotification}
         duration={3000}
+      />
+
+      {/* Modal détaillé */}
+      <CardDetailModal
+        card={selectedCardForDetail}
+        isOpen={isDetailModalOpen}
+        onClose={closeCardDetail}
+        onAddToCollection={addToCollection}
+      />
+
+      {/* Modal de comparaison */}
+      <CardComparison
+        isOpen={isComparisonOpen}
+        onClose={closeComparison}
+        selectedCards={selectedCards}
+        onRemoveCard={removeCardFromComparison}
+        onClearComparison={clearComparison}
       />
     </>
   );

@@ -1,4 +1,4 @@
-import TCGdexService from '../tcgdexService';
+import TCGdexService from './tcgdexService';
 
 // Mock de fetch
 global.fetch = jest.fn();
