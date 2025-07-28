@@ -198,7 +198,18 @@ const MyCards = () => {
   // Fonctions pour le modal détaillé
   const openCardDetail = (card) => {
     console.log('🔍 [MyCards] openCardDetail appelé avec:', card);
-    setSelectedCardForDetail(card);
+    
+    // Créer un objet carte compatible avec CardDetailModal
+    const cardForModal = {
+      id: card.card_id, // Le modal a besoin du champ 'id' pour TCGdx
+      name: card.card_name,
+      image: card.card_image,
+      // Ajouter d'autres champs si nécessaire
+      ...card
+    };
+    
+    console.log('🔍 [MyCards] Carte transformée pour modal:', cardForModal);
+    setSelectedCardForDetail(cardForModal);
     setIsDetailModalOpen(true);
   };
 

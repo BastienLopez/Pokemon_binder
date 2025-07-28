@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
+import TCGdxService f    try {
+      setLoading(true);
+      const data = await TCGdxService.getCardsBySet(selectedSet);
+      setCards(data);
+      
+      // Précharger les images de toutes les cartes en arrière-plan
+      setTimeout(() => {
+        preloadCardImages(data, (card) => TCGdxService.getHighQualityImageUrl(card));
+      }, 100);
+      
+      // Récupérer les infos de l'extension pour l'ajout à la collection
+      const selectedSetInfo = sets.find(set => set.id === selectedSet);
+      setCurrentSet(selectedSetInfo);services/tcgdxService';
+import UserCardsService from '../services/userCardsService';
+import Notification from '../components/Notification';
+import CardDetailModal from '../components/CardDetailModal';
+import CardComparison from '../components/CardComparison';
+import OptimizedCardImage from '../components/OptimizedCardImage';
+import useCardComparison from '../hooks/useCardComparison';
+import useImagePreloader from '../hooks/useImagePreloader';
+import { useAuth } from '../contexts/AuthContext';
+import './Cards.css';ct, { useState, useEffect } from 'react';
+import Header from '../components/Header';
 import TCGdexService from '../services/tcgdexService';
 import UserCardsService from '../services/userCardsService';
 import Notification from '../components/Notification';
@@ -11,6 +34,7 @@ import './Cards.css';
 
 const Cards = ({ showHeader = true }) => {
   const { user } = useAuth();
+  const { preloadCardImages, cacheStats } = useImagePreloader();
   const [series, setSeries] = useState([]);
   const [selectedSerie, setSelectedSerie] = useState('');
   const [sets, setSets] = useState([]);
