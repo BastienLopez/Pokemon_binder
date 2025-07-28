@@ -91,11 +91,6 @@ const CardComparison = ({
       };
     }
 
-    // Log temporaire pour voir la structure des attaques
-    if (cardDetails.length > 0 && cardDetails[0].attacks) {
-      console.log('🔍 Structure des attaques:', cardDetails[0].attacks);
-    }
-
     return {
       names: cardDetails.map(card => card.name),
       images: cardDetails.map(card => TCGdexService.getHighQualityImageUrl(card)),
@@ -134,7 +129,7 @@ const CardComparison = ({
                   alt={data.names[index]}
                   className="comparison-card-image"
                   onError={(e) => {
-                    e.target.src = '/placeholder-card.png';
+                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='280' viewBox='0 0 200 280'%3E%3Crect width='200' height='280' fill='%23f0f0f0' stroke='%23ddd' stroke-width='2'/%3E%3Ctext x='100' y='140' text-anchor='middle' fill='%23666' font-family='Arial' font-size='14'%3EImage non%3C/text%3E%3Ctext x='100' y='160' text-anchor='middle' fill='%23666' font-family='Arial' font-size='14'%3Edisponible%3C/text%3E%3C/svg%3E";
                   }}
                 />
               </div>

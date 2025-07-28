@@ -223,7 +223,15 @@ const Cards = ({ showHeader = true }) => {
   };
 
   const getImageUrl = (card) => {
-    return TCGdexService.getHighQualityImageUrl(card);
+    console.log('📷 getImageUrl appelé pour:', card.name, 'avec données:', {
+      cardId: card.id,
+      cardImage: card.image,
+      cardLocalId: card.localId
+    });
+    
+    const imageUrl = TCGdexService.getHighQualityImageUrl(card);
+    console.log('📷 URL finale retournée:', imageUrl);
+    return imageUrl;
   };
 
   return (
@@ -359,7 +367,17 @@ const Cards = ({ showHeader = true }) => {
                     className="card-image-clickable"
                     title="Cliquer pour voir les détails"
                     onError={(e) => {
-                      e.target.src = '/placeholder-card.png';
+                      console.error(`🚫 ERREUR: Image non trouvée pour ${card.name}:`, {
+                        urlTentée: e.target.src,
+                        cardImage: card.image,
+                        cardId: card.id,
+                        cardLocalId: card.localId,
+                        errorType: 'Image loading failed - URL inaccessible'
+                      });
+                      console.error(`🔗 URL complète qui a échoué: ${e.target.src}`);
+                      
+                      // Fallback SVG si l'image échoue à se charger
+                      e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='280' viewBox='0 0 200 280'%3E%3Crect width='200' height='280' fill='%23f0f0f0' stroke='%23ddd' stroke-width='2'/%3E%3Ctext x='100' y='140' text-anchor='middle' fill='%23666' font-family='Arial' font-size='14'%3EImage non%3C/text%3E%3Ctext x='100' y='160' text-anchor='middle' fill='%23666' font-family='Arial' font-size='14'%3Edisponible%3C/text%3E%3C/svg%3E";
                       e.target.alt = 'Image non disponible';
                     }}
                   />

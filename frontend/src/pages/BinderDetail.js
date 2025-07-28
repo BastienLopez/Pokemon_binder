@@ -195,7 +195,7 @@ const BinderDetail = () => {
     
     // Priorité à l'image stockée depuis TCGdx
     if (slot.card_image && slot.card_image !== '/placeholder-card.png') {
-      const imageUrl = TCGdxService.getHighQualityImageUrl({ image: slot.card_image });
+      const imageUrl = TCGdexService.getHighQualityImageUrl({ image: slot.card_image });
       console.log('✅ Image URL générée depuis card_image:', imageUrl);
       return imageUrl;
     }
