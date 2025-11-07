@@ -4,6 +4,7 @@ import UserCardsService from '../services/userCardsService';
 import TCGdexService from '../services/tcgdexService';
 import ConfirmModal from '../components/ConfirmModal';
 import './MyCards.css';
+import { PLACEHOLDER_IMAGE, isPlaceholderImage } from '../utils/assets';
 
 const MyCards = () => {
   const { user } = useAuth();
@@ -108,13 +109,13 @@ const MyCards = () => {
 
   const getCardImageUrl = (card) => {
     // Priorité à l'image stockée depuis TCGdx
-    if (card.card_image && card.card_image !== '/placeholder-card.png') {
+    if (card.card_image && !isPlaceholderImage(card.card_image)) {
       // Utiliser le service TCGdx pour la haute qualité
       return TCGdexService.getHighQualityImageUrl({ image: card.card_image });
     }
     
     // Fallback : image par défaut
-    return '/placeholder-card.png';
+    return PLACEHOLDER_IMAGE;
   };
 
   const getGridClass = () => {
@@ -184,7 +185,7 @@ const MyCards = () => {
                   alt={card.card_name}
                   loading="lazy"
                   onError={(e) => {
-                    e.target.src = '/placeholder-card.png';
+                    e.target.src = PLACEHOLDER_IMAGE;
                     e.target.alt = 'Image non disponible';
                   }}
                 />
@@ -300,3 +301,4 @@ const MyCards = () => {
 };
 
 export default MyCards;
+

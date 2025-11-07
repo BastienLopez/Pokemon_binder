@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from '../components/Header';
 import TCGdexService from '../services/tcgdexService';
 import UserCardsService from '../services/userCardsService';
@@ -9,13 +9,17 @@ import useCardComparison from '../hooks/useCardComparison';
 import { useAuth } from '../contexts/AuthContext';
 import './Cards.css';
 
+const DEFAULT_SERIE_ID = 'base';
+const DEFAULT_SET_ID = 'base1';
+const DEFAULT_BINDER_SIZE = '5x5';
+
 const Cards = ({ showHeader = true }) => {
   const { user } = useAuth();
   const [series, setSeries] = useState([]);
-  const [selectedSerie, setSelectedSerie] = useState('');
+  const [selectedSerie, setSelectedSerie] = useState(DEFAULT_SERIE_ID);
   const [sets, setSets] = useState([]);
   const [selectedSet, setSelectedSet] = useState('');
-  const [binderSize, setBinderSize] = useState('3x3');
+  const [binderSize, setBinderSize] = useState(DEFAULT_BINDER_SIZE);
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingSeries, setLoadingSeries] = useState(true);
@@ -34,6 +38,7 @@ const Cards = ({ showHeader = true }) => {
   // États pour le modal détaillé
   const [selectedCardForDetail, setSelectedCardForDetail] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const initialListingLoaded = useRef(false);
   
   // Hook de comparaison
   const {
@@ -59,7 +64,14 @@ const Cards = ({ showHeader = true }) => {
   // Charger les extensions quand une série est sélectionnée
   useEffect(() => {
     if (selectedSerie) {
-      fetchSetsBySerie(selectedSerie);
+      const shouldPrefill = !initialListingLoaded.current && selectedSerie === DEFAULT_SERIE_ID;
+      fetchSetsBySerie(selectedSerie, {
+        preferredSetId: shouldPrefill ? DEFAULT_SET_ID : '',
+        autoLoadCards: shouldPrefill
+      });
+      if (shouldPrefill) {
+        initialListingLoaded.current = true;
+      }
     } else {
       setSets([]);
       setSelectedSet('');
@@ -71,6 +83,11 @@ const Cards = ({ showHeader = true }) => {
       setLoadingSeries(true);
       const data = await TCGdexService.getSeries();
       setSeries(data);
+
+      if (!selectedSerie && data.length > 0) {
+        const fallbackSerie = data.find((serie) => serie.id === DEFAULT_SERIE_ID)?.id || data[0].id;
+        setSelectedSerie(fallbackSerie);
+      }
     } catch (error) {
       console.error('Erreur:', error);
       alert('Impossible de charger la liste des séries');
@@ -79,12 +96,28 @@ const Cards = ({ showHeader = true }) => {
     }
   };
 
-  const fetchSetsBySerie = async (serieId) => {
+  const fetchSetsBySerie = async (serieId, options = {}) => {
     try {
       setLoadingSets(true);
       const data = await TCGdexService.getSetsBySerie(serieId);
       setSets(data);
-      setSelectedSet(''); // Reset l'extension sélectionnée
+
+      let nextSetId = '';
+      if (options.preferredSetId && data.some((set) => set.id === options.preferredSetId)) {
+        nextSetId = options.preferredSetId;
+      } else if (data.length > 0) {
+        nextSetId = data[0].id;
+      }
+
+      if (nextSetId) {
+        setSelectedSet(nextSetId);
+        if (options.autoLoadCards) {
+          await loadCardsForSet(serieId, nextSetId, { setsSource: data, silent: true });
+        }
+      } else {
+        setSelectedSet('');
+        setCards([]);
+      }
     } catch (error) {
       console.error('Erreur:', error);
       alert('Impossible de charger la liste des extensions pour cette série');
@@ -94,30 +127,33 @@ const Cards = ({ showHeader = true }) => {
     }
   };
 
-  const fetchCards = async () => {
-    if (!selectedSerie) {
-      alert('Veuillez sélectionner une série');
-      return;
-    }
-    if (!selectedSet) {
-      alert('Veuillez sélectionner une extension');
+  const loadCardsForSet = async (serieIdValue, setIdValue, options = {}) => {
+    if (!serieIdValue || !setIdValue) {
+      if (!options.silent) {
+        alert('Veuillez sélectionner une série et une extension');
+      }
       return;
     }
 
     try {
       setLoading(true);
-      const data = await TCGdexService.getCardsBySet(selectedSet);
+      const data = await TCGdexService.getCardsBySet(setIdValue);
       setCards(data);
-      
-      // Récupérer les infos de l'extension pour l'ajout à la collection
-      const selectedSetInfo = sets.find(set => set.id === selectedSet);
-      setCurrentSet(selectedSetInfo);
+      const sourceSets = options.setsSource || sets;
+      const selectedSetInfo = sourceSets.find((set) => set.id === setIdValue);
+      setCurrentSet(selectedSetInfo || null);
     } catch (error) {
       console.error('Erreur:', error);
-      alert('Impossible de charger les cartes de cette extension');
+      if (!options.silent) {
+        alert('Impossible de charger les cartes de cette extension');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchCards = () => {
+    loadCardsForSet(selectedSerie, selectedSet);
   };
 
   const addToCollection = async (card) => {

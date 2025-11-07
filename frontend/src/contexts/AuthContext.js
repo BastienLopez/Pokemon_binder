@@ -73,8 +73,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
-    // Rediriger vers la page d'accueil
-    const base = process.env.PUBLIC_URL || '/';
+    // Rediriger vers l'accueil (compat Pages et dev)
+    const base = process.env.NODE_ENV === 'production' ? (process.env.PUBLIC_URL || '') : '';
     window.location.href = base + '/';
   };
 

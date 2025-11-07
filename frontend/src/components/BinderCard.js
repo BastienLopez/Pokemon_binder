@@ -1,5 +1,6 @@
 import React from 'react';
 import './BinderCard.css';
+import { PLACEHOLDER_IMAGE, isPlaceholderImage } from '../utils/assets';
 
 const BinderCard = ({ 
   binder, 
@@ -122,7 +123,7 @@ const BinderCard = ({
     
     console.log('❌ [BinderCard] Pas d\'image valide trouvée, utilisation du placeholder');
     console.log('❌ [BinderCard] CardData final:', cardData);
-    return '/placeholder-card.png';
+    return PLACEHOLDER_IMAGE;
   };
 
   return (
@@ -181,7 +182,7 @@ const BinderCard = ({
                       alt={`Carte ${card.card_id || card}`}
                       onError={(e) => {
                         console.log(`❌ [BinderCard] Erreur de chargement image pour carte ${index + 1}:`, e.target.src);
-                        e.target.src = '/placeholder-card.png';
+                        e.target.src = PLACEHOLDER_IMAGE;
                         e.target.alt = 'Image non disponible';
                       }}
                       onLoad={(e) => {

@@ -5,6 +5,7 @@ import UserCardsService from '../services/userCardsService';
 import binderService from '../services/binderService';
 import Toast from './Toast';
 import './CardDetailModal.css';
+import { PLACEHOLDER_IMAGE } from '../utils/assets';
 
 const CardDetailModal = ({ 
   card, 
@@ -398,7 +399,8 @@ const CardDetailModal = ({
                   alt={displayCard.name}
                   className="card-image-large"
                   onError={(e) => {
-                    e.target.src = '/placeholder-card.png';
+                    e.target.src = PLACEHOLDER_IMAGE;
+                    e.target.alt = 'Image non disponible';
                   }}
                 />
                 

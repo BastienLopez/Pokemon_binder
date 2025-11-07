@@ -12,11 +12,13 @@ import MyCards from './pages/MyCards';
 import MyBinders from './pages/MyBinders';
 import BinderDetail from './pages/BinderDetail';
 import UserDashboard from './pages/UserDashboard';
+import DeckBuilder from './pages/DeckBuilder';
 
 function App() {
+  const basename = process.env.NODE_ENV === 'production' ? (process.env.PUBLIC_URL || '') : '';
   return (
     <AuthProvider>
-      <Router basename={process.env.PUBLIC_URL}>
+      <Router basename={basename}>
         <div className="App">
           <Routes>
             {/* Routes publiques */}
@@ -57,6 +59,14 @@ function App() {
                   <BinderDetail />
                 </ProtectedRoute>
               } 
+            />
+            <Route 
+              path="/deck-builder"
+              element={
+                <ProtectedRoute>
+                  <DeckBuilder />
+                </ProtectedRoute>
+              }
             />
           </Routes>
         </div>

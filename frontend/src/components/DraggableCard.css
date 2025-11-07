@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: grab;
   transition: all 0.2s ease;
@@ -14,67 +14,47 @@
 
 .draggable-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-color: #3498db;
-}
-
-.draggable-card:active {
-  cursor: grabbing;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.15);
+  border-color: #667eea;
 }
 
 .draggable-card.dragging {
   opacity: 1;
-  transform: rotate(5deg) scale(1.05);
-  z-index: 1000;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  border-color: #3498db;
+  transform: rotate(5deg) scale(1.03);
+  z-index: 25;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.35);
+  border-color: #667eea;
 }
 
-.draggable-card.preview-mode {
-  cursor: default;
-  pointer-events: none;
-}
-
-.draggable-card.preview-mode:hover {
-  transform: none;
-  box-shadow: none;
-  border-color: transparent;
+.draggable-card.selected-for-comparison {
+  border-color: #9b59b6;
+  box-shadow: 0 15px 30px rgba(155, 89, 182, 0.25);
 }
 
 .card-content {
   position: relative;
-  width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0; /* Permet à flex de réduire la taille si nécessaire */
 }
 
 .card-image {
   width: 100%;
   height: auto;
-  flex: 1;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
   user-select: none;
   pointer-events: none;
-  min-height: 0; /* Permet à l'image de se réduire */
 }
 
 .card-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  inset: 0;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 6px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
 .draggable-card:hover .card-overlay {
@@ -82,97 +62,34 @@
 }
 
 .drag-handle {
-  background: rgba(52, 152, 219, 0.9);
-  color: white;
-  border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 10px;
-  font-weight: bold;
+  background: rgba(102, 126, 234, 0.9);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  min-height: 20px;
-  cursor: grab;
-  user-select: none;
-  backdrop-filter: blur(4px);
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.drag-icon {
-  font-size: 12px;
-  line-height: 1;
 }
 
 .comparison-btn {
   background: rgba(155, 89, 182, 0.9);
-  color: white;
+  color: #fff;
   border: none;
-  border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  min-height: 20px;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.7rem;
   cursor: pointer;
-  user-select: none;
-  backdrop-filter: blur(4px);
-  transition: all 0.2s ease;
 }
 
-.comparison-btn:hover {
-  background: rgba(155, 89, 182, 1);
-  transform: scale(1.1);
+.comparison-btn.selected {
+  background: rgba(16, 185, 129, 0.9);
+  cursor: default;
 }
 
-.remove-card-btn {
-  background: rgba(231, 76, 60, 0.9);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-}
-
-.remove-card-btn:hover {
-  background: rgba(231, 76, 60, 1);
-  transform: scale(1.1);
-}
-
-/* Bouton Supprimer en bas de la carte */
-.remove-card-btn-bottom {
-  background: rgba(231, 76, 60, 0.9);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 3px 6px;
-  margin: 5px auto;
-  font-size: 10px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 80%;
-  text-align: center;
-  display: block;
-}
-
-.remove-card-btn-bottom:hover {
-  background: rgba(231, 76, 60, 1);
-  transform: scale(1.03);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.comparison-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
 }
 
 .drag-indicator {
@@ -180,95 +97,57 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(52, 152, 219, 0.95);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-  white-space: nowrap;
-  backdrop-filter: blur(8px);
-  border: 2px solid white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(102, 126, 234, 0.95);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .card-footer {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  flex-shrink: 0; /* Ne pas réduire le footer */
   background: #f8f9fa;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #e2e8f0;
+  padding: 6px;
 }
 
 .card-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 4px 2px;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.card-name {
-  font-size: 10px;
-  color: #2c3e50;
   text-align: center;
-  font-weight: 500;
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
-/* Animations */
-@keyframes dragStart {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  100% {
-    transform: scale(1.05) rotate(5deg);
-  }
+.remove-card-btn-bottom {
+  margin-top: 6px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  background: rgba(231, 76, 60, 0.9);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 4px 0;
+  cursor: pointer;
 }
 
-@keyframes dragEnd {
-  0% {
-    transform: scale(1.05) rotate(5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
+.remove-card-btn-bottom:hover {
+  background: rgba(231, 76, 60, 1);
 }
 
-.draggable-card.drag-start {
-  animation: dragStart 0.2s ease-out forwards;
+.preview-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.65rem;
 }
 
-.draggable-card.drag-end {
-  animation: dragEnd 0.2s ease-out forwards;
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .drag-handle,
-  .remove-card-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
-  }
-  
-  .card-name {
-    font-size: 9px;
-  }
-  
-  .drag-indicator {
-    font-size: 11px;
-    padding: 6px 10px;
-  }
-  
-  .remove-card-btn-bottom {
-    font-size: 9px;
-    padding: 2px 4px;
+  .comparison-btn {
+    font-size: 0.65rem;
   }
 }

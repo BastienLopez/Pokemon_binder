@@ -11,6 +11,7 @@ services:
       - /app/node_modules
     environment:
       - REACT_APP_API_URL=http://localhost:8000
+      - PUBLIC_URL=/
     depends_on:
       - backend
 

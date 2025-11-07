@@ -402,3 +402,104 @@
     font-size: 14px;
   }
 }
+
+/* ===== Modern theme overrides ===== */
+.cards-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 3rem;
+}
+
+.cards-header h1 {
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.cards-controls {
+  background: var(--surface-color);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--card-shadow);
+}
+
+.control-group label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.control-group select,
+.control-group input {
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
+  background: #fff;
+}
+
+.generate-btn,
+.comparison-btn {
+  border-radius: 999px;
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(108, 92, 231, 0.35);
+}
+
+.generate-btn {
+  background: linear-gradient(135deg, #36d1dc, #5b86e5);
+}
+
+.comparison-btn {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+}
+
+.results-count {
+  color: var(--text-secondary);
+}
+
+.filters-section {
+  background: var(--surface-color);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--card-shadow);
+}
+
+.card-item {
+  background: var(--surface-color);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--card-shadow);
+}
+
+.card-info h4 {
+  color: var(--text-primary);
+}
+
+.card-info p {
+  color: var(--text-secondary);
+}
+
+.card-info .rarity {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.add-to-collection-btn {
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.comparison-btn-card {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(108, 92, 231, 0.25);
+}
+
+.comparison-btn-card.selected {
+  background: linear-gradient(135deg, var(--success), #0a8d61);
+}

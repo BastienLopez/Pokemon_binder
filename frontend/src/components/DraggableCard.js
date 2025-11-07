@@ -1,62 +1,60 @@
 import React, { memo } from 'react';
 import './DraggableCard.css';
+import { PLACEHOLDER_IMAGE } from '../utils/assets';
 
-/**
- * Composant pour une carte pouvant être déplacée par drag & drop
- */
-const DraggableCard = memo(({ 
-  card, 
-  slot, 
-  imageUrl, 
+const DraggableCard = memo(({
+  card,
+  slot,
+  imageUrl,
   isDragging = false,
   onDragStart,
   onDragEnd,
   onRemove,
   isPreviewMode = false,
   onCardClick,
-  onAddToComparison
+  onAddToComparison,
+  isSelectedForComparison = false
 }) => {
-  const handleDragStart = (e) => {
+  const handleDragStart = (event) => {
     if (onDragStart) {
-      onDragStart(e, card, slot);
+      onDragStart(event, card, slot);
     }
   };
 
-  const handleDragEnd = (e) => {
+  const handleDragEnd = (event) => {
     if (onDragEnd) {
-      onDragEnd(e);
+      onDragEnd(event);
     }
   };
 
-  const handleRemoveClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+  const handleRemoveClick = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
     if (onRemove) {
       onRemove(slot.page, slot.position);
     }
   };
 
-  const handleCardClick = (e) => {
-    // Ne pas déclencher le clic si on est en train de glisser
+  const handleCardClick = (event) => {
     if (isDragging) return;
-    
-    e.stopPropagation();
+    event.stopPropagation();
     if (onCardClick) {
       onCardClick(card);
     }
   };
 
-  const handleAddToComparisonClick = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (onAddToComparison) {
-      onAddToComparison(card);
+  const handleAddToComparisonClick = (event) => {
+    event.stopPropagation();
+    event.preventDefault();
+    if (isSelectedForComparison || !onAddToComparison) {
+      return;
     }
+    onAddToComparison(card);
   };
 
   return (
-    <div 
-      className={`draggable-card ${isDragging ? 'dragging' : ''} ${isPreviewMode ? 'preview-mode' : ''}`}
+    <div
+      className={`draggable-card ${isDragging ? 'dragging' : ''} ${isPreviewMode ? 'preview-mode' : ''} ${isSelectedForComparison ? 'selected-for-comparison' : ''}`}
       draggable={!isPreviewMode}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
@@ -67,53 +65,47 @@ const DraggableCard = memo(({
           alt={card.card_name || `Carte ${card.card_id}`}
           className="card-image"
           loading="lazy"
-          onError={(e) => {
-            e.target.src = '/placeholder-card.png';
-            e.target.alt = 'Image non disponible';
+          onError={(event) => {
+            event.target.src = PLACEHOLDER_IMAGE;
+            event.target.alt = 'Image non disponible';
           }}
-          draggable={false} // Empêcher le drag de l'image elle-même
+          draggable={false}
         />
-        
-        {/* Overlay avec actions */}
+
         {!isPreviewMode && (
           <div className="card-overlay">
-            {/* Indicateur de drag */}
             <div className="drag-handle" title="Cliquez et glissez pour déplacer">
-              <span className="drag-icon">⌘</span>
+              <span className="drag-icon">⠿</span>
             </div>
-            
-            {/* Bouton de comparaison */}
+
             {onAddToComparison && (
               <button
-                className="comparison-btn"
+                className={`comparison-btn ${isSelectedForComparison ? 'selected' : ''}`}
                 onClick={handleAddToComparisonClick}
-                title="Ajouter à la comparaison"
+                title={isSelectedForComparison ? 'Déjà dans la comparaison' : 'Ajouter à la comparaison'}
                 type="button"
+                disabled={isSelectedForComparison}
               >
-                📊
+                {isSelectedForComparison ? '✔' : '⇄'}
               </button>
             )}
           </div>
         )}
-        
-        {/* Indicateur de drag en cours */}
+
         {isDragging && (
           <div className="drag-indicator">
             <span className="drag-text">Déplacement...</span>
           </div>
         )}
       </div>
-      
-      {/* Conteneur pour le nom et le bouton supprimer - EN DEHORS de la zone draggable */}
+
       <div className="card-footer">
-        {/* Informations de la carte */}
         <div className="card-info">
           <span className="card-name" title={card.card_name}>
             {card.card_name}
           </span>
         </div>
-        
-        {/* Bouton de suppression en bas */}
+
         {!isPreviewMode && onRemove && (
           <button
             className="remove-card-btn-bottom"
