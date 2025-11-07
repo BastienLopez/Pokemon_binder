@@ -20,6 +20,8 @@ jobs:
     env:
       # Configure the API URL at build time (set as GitHub Secret or Repository Variable)
       REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL || vars.REACT_APP_API_URL }}
+      # Activer le mode statique pour GitHub Pages
+      REACT_APP_STATIC_DATA: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

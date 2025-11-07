@@ -74,7 +74,8 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     // Rediriger vers la page d'accueil
-    window.location.href = '/';
+    const base = process.env.PUBLIC_URL || '/';
+    window.location.href = base + '/';
   };
 
   const value = {
