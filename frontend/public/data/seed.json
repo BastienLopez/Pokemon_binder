@@ -2,12 +2,12 @@
   "user": {
     "id": "demo-user",
     "email": "demo@example.com",
-    "name": "Utilisateur DÃ©mo"
+    "name": "Utilisateur Démo"
   },
   "binders": [
     {
       "id": "binder-demo-1",
-      "name": "Binder DÃ©mo",
+      "name": "Binder Démo",
       "description": "Exemple autonome pour GitHub Pages",
       "is_public": true,
       "size": "3x3",
@@ -32,6 +32,6 @@
       "total_cards": 1,
       "preview_cards": [ { "card_id": "sv1-1" } ]
     }
-  ]
+  ],
+  "user_cards": []
 }
-

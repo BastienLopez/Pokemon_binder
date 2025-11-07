@@ -74,11 +74,17 @@ class StaticApiService {
 
   async #ensureState() {
     const existing = localStorage.getItem(this.stateKey);
+    let data;
     if (!existing) {
       const res = await fetch(this.basePath);
-      const data = await res.json();
-      localStorage.setItem(this.stateKey, JSON.stringify(data));
+      data = await res.json();
+    } else {
+      try { data = JSON.parse(existing); } catch { data = {}; }
     }
+    if (!Array.isArray(data.binders)) data.binders = [];
+    if (!Array.isArray(data.user_cards)) data.user_cards = [];
+    if (!data.user) data.user = { id: 'demo-user', email: 'demo@example.com' };
+    localStorage.setItem(this.stateKey, JSON.stringify(data));
   }
 
   #load() {
@@ -120,6 +126,18 @@ class StaticApiService {
 
     if (url === '/user/binders/') {
       return state.binders;
+    }
+
+    if (url === '/user/cards') {
+      return state.user_cards;
+    }
+
+    const userCardGet = url.match(/^\/user\/cards\/(.+)$/);
+    if (userCardGet) {
+      const id = userCardGet[1];
+      const card = state.user_cards.find(c => c.id === id);
+      if (!card) throw new Error('User card not found');
+      return card;
     }
 
     const binderMatch = url.match(/^\/user\/binders\/(.+)$/);
@@ -170,6 +188,28 @@ class StaticApiService {
       state.binders.unshift(binder);
       this.#save(state);
       return binder;
+    }
+
+    if (url === '/user/cards') {
+      const id = `uc_${Date.now()}`;
+      const now = new Date().toISOString();
+      const card = {
+        id,
+        card_id: data.card_id,
+        card_name: data.card_name || 'Carte',
+        card_image: data.card_image || null,
+        set_id: data.set_id || null,
+        set_name: data.set_name || null,
+        quantity: data.quantity || 1,
+        condition: data.condition || 'Near Mint',
+        rarity: data.rarity || null,
+        local_id: data.local_id || null,
+        created_at: now,
+        updated_at: now
+      };
+      state.user_cards.unshift(card);
+      this.#save(state);
+      return card;
     }
 
     const addPageMatch = url.match(/^\/user\/binders\/(.+)\/pages$/);
@@ -241,6 +281,17 @@ class StaticApiService {
       return binder;
     }
 
+    const userCardPatch = url.match(/^\/user\/cards\/(.+)$/);
+    if (userCardPatch) {
+      const id = userCardPatch[1];
+      const card = state.user_cards.find(c => c.id === id);
+      if (!card) throw new Error('User card not found');
+      Object.assign(card, data || {});
+      card.updated_at = new Date().toISOString();
+      this.#save(state);
+      return card;
+    }
+
     throw new Error(`PATCH non géré en mode statique: ${url}`);
   }
 
@@ -274,9 +325,16 @@ class StaticApiService {
       return { success: true };
     }
 
+    const delUserCard = url.match(/^\/user\/cards\/(.+)$/);
+    if (delUserCard) {
+      const id = delUserCard[1];
+      state.user_cards = state.user_cards.filter(c => c.id !== id);
+      this.#save(state);
+      return { success: true };
+    }
+
     throw new Error(`DELETE non géré en mode statique: ${url}`);
   }
 }
 
 export const apiService = STATIC_MODE ? new StaticApiService() : new ApiService();
-
