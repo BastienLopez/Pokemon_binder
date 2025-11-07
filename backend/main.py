@@ -25,10 +25,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configuration CORS
+# Configuration CORS (origins configurables via variables d'environnement)
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000")
+origin_regex = os.getenv("ALLOWED_ORIGIN_REGEX", None)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend React
+    allow_origins=[o.strip() for o in allowed_origins.split(",") if o.strip()],
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

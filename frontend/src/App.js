@@ -16,7 +16,7 @@ import UserDashboard from './pages/UserDashboard';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router basename={process.env.PUBLIC_URL}>
         <div className="App">
           <Routes>
             {/* Routes publiques */}
