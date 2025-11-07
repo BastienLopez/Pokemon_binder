@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: pokemon-binder-backend
+    env: docker
+    autoDeploy: true
+    dockerfilePath: docker/Dockerfile.backend
+    rootDir: .
+    envVars:
+      - key: MONGODB_URL
+        sync: false # set in Render dashboard to your MongoDB Atlas URI
+      - key: ALLOWED_ORIGINS
+        value: "https://bastienlopez.github.io,https://bastienlopez.github.io/Pokemon_binder"
+      - key: PYTHONUNBUFFERED
+        value: "1"
