@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiService } from '../services/apiService';
 
 const AuthContext = createContext();
@@ -16,15 +16,16 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  useEffect(() => {
-    if (token) {
-      checkAuthStatus();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+    // Rediriger vers l'accueil (compat Pages et dev)
+    const base = process.env.NODE_ENV === 'production' ? (process.env.PUBLIC_URL || '') : '';
+    window.location.href = base + '/';
+  }, []);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async () => {
     try {
       const userData = await apiService.get('/auth/me');
       setUser(userData);
@@ -34,7 +35,15 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  useEffect(() => {
+    if (token) {
+      checkAuthStatus();
+    } else {
+      setLoading(false);
+    }
+  }, [token, checkAuthStatus]);
 
   const login = async (email, password) => {
     try {
@@ -69,14 +78,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-    // Rediriger vers l'accueil (compat Pages et dev)
-    const base = process.env.NODE_ENV === 'production' ? (process.env.PUBLIC_URL || '') : '';
-    window.location.href = base + '/';
-  };
+  // logout is defined above with useCallback
 
   const value = {
     user,

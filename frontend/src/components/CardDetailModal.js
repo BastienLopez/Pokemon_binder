@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import TCGdexService from '../services/tcgdexService';
-import UserCardsService from '../services/userCardsService';
 import binderService from '../services/binderService';
 import Toast from './Toast';
 import './CardDetailModal.css';
@@ -37,9 +36,36 @@ const CardDetailModal = ({
 
   useEffect(() => {
     console.log('🟤 useEffect triggered:', { isOpen, card: !!card, user: !!user, userCard });
-    
+
     if (isOpen && card) {
       console.log('🟤 Conditions remplies, début de l\'initialisation');
+
+      const fetchCardDetails = async () => {
+        if (!card.id) return;
+        try {
+          setLoading(true);
+          const details = await TCGdexService.getCard(card.id);
+          setCardDetails(details);
+
+          // Simulation d'un prix estimé (à remplacer par une vraie API)
+          const mockPrice = generateMockPrice(details);
+          setEstimatedPrice(mockPrice);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des détails:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const fetchUserBinders = async () => {
+        try {
+          const binders = await binderService.getUserBinders();
+          setUserBinders(binders);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des binders:', error);
+        }
+      };
+
       fetchCardDetails();
       if (user) {
         console.log('🟤 Utilisateur connecté, récupération des binders');
@@ -50,33 +76,6 @@ const CardDetailModal = ({
       }
     }
   }, [isOpen, card, user, userCard]);
-
-  const fetchCardDetails = async () => {
-    if (!card.id) return;
-    
-    try {
-      setLoading(true);
-      const details = await TCGdexService.getCard(card.id);
-      setCardDetails(details);
-      
-      // Simulation d'un prix estimé (à remplacer par une vraie API)
-      const mockPrice = generateMockPrice(details);
-      setEstimatedPrice(mockPrice);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des détails:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserBinders = async () => {
-    try {
-      const binders = await binderService.getUserBinders();
-      setUserBinders(binders);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des binders:', error);
-    }
-  };
 
   const generateMockPrice = (cardData) => {
     // Simulation de prix basée sur la rareté

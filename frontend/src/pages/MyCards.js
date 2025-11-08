@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import UserCardsService from '../services/userCardsService';
@@ -108,9 +108,9 @@ const MyCards = () => {
     } else {
       console.log('❌ Aucun ID de binder trouvé dans l\'URL');
     }
-  }, [location.search, user]);
+  }, [location.search, user, fetchTargetBinder]);
 
-  const fetchTargetBinder = async (binderId) => {
+  const fetchTargetBinder = useCallback(async (binderId) => {
     try {
       console.log('🔍 Tentative de récupération du binder avec ID:', binderId);
       const binder = await binderService.getBinderById(binderId);
@@ -136,7 +136,7 @@ const MyCards = () => {
         }
       });
     }
-  };
+  }, [navigate]);
 
   const fetchUserCards = async () => {
     try {

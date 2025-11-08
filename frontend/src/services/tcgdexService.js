@@ -126,7 +126,6 @@ class TCGdexService {
     if (card?.id) {
       const cardId = card.id;
       const setId = cardId.split('-')[0];
-      const cardNumber = cardId.split('-')[1];
       
       const tcgdxUrl = `https://assets.tcgdx.net/fr/${setId}/${cardId}/high.webp`;
       console.log('🔧 Tentative URL TCGdx construite:', tcgdxUrl, 'pour:', card.name);

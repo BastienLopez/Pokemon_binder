@@ -1,6 +1,6 @@
 import React from 'react';
 import './BinderCard.css';
-import { PLACEHOLDER_IMAGE, isPlaceholderImage } from '../utils/assets';
+import { PLACEHOLDER_IMAGE } from '../utils/assets';
 
 const BinderCard = ({ 
   binder, 

@@ -12,7 +12,7 @@ export const useDragAndDrop = (onCardMove, binder) => {
     dragPreview: null
   });
 
-  const dragPreviewRef = useRef(null);
+  // dragPreviewRef removed because it was declared but unused (eslint)
   const offsetRef = useRef({ x: 0, y: 0 });
 
   // Reset du state de drag

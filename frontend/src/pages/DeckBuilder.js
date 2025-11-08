@@ -131,7 +131,7 @@ const DeckBuilder = () => {
     () => decks.find((deck) => deck.id === activeDeckId) || decks[0],
     [decks, activeDeckId]
   );
-  const deckCards = activeDeck?.cards || [];
+  const deckCards = React.useMemo(() => activeDeck?.cards || [], [activeDeck]);
 
   useEffect(() => {
     if (!activeDeckId && decks.length) {

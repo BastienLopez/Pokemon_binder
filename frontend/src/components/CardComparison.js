@@ -15,43 +15,43 @@ const CardComparison = ({
 
   useEffect(() => {
     if (isOpen && selectedCards.length > 0) {
+      const fetchCardDetails = async () => {
+        try {
+          setLoading(true);
+          const details = await Promise.all(
+            selectedCards.map(async (card) => {
+              try {
+                if (card.id) {
+                  const fullDetails = await TCGdexService.getCard(card.id);
+                  return {
+                    ...fullDetails,
+                    estimatedPrice: generateMockPrice(fullDetails)
+                  };
+                }
+                return {
+                  ...card,
+                  estimatedPrice: generateMockPrice(card)
+                };
+              } catch (error) {
+                console.error(`Erreur lors de la récupération de ${card.name}:`, error);
+                return {
+                  ...card,
+                  estimatedPrice: generateMockPrice(card)
+                };
+              }
+            })
+          );
+          setCardDetails(details);
+        } catch (error) {
+          console.error('Erreur lors de la récupération des détails:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
       fetchCardDetails();
     }
   }, [isOpen, selectedCards]);
-
-  const fetchCardDetails = async () => {
-    try {
-      setLoading(true);
-      const details = await Promise.all(
-        selectedCards.map(async (card) => {
-          try {
-            if (card.id) {
-              const fullDetails = await TCGdexService.getCard(card.id);
-              return {
-                ...fullDetails,
-                estimatedPrice: generateMockPrice(fullDetails)
-              };
-            }
-            return {
-              ...card,
-              estimatedPrice: generateMockPrice(card)
-            };
-          } catch (error) {
-            console.error(`Erreur lors de la récupération de ${card.name}:`, error);
-            return {
-              ...card,
-              estimatedPrice: generateMockPrice(card)
-            };
-          }
-        })
-      );
-      setCardDetails(details);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des détails:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const generateMockPrice = (cardData) => {
     const rarityPrices = {
