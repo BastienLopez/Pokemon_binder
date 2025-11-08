@@ -52,36 +52,9 @@ const Cards = ({ showHeader = true }) => {
     isCardSelected,
     canAddMore,
     canCompare,
-    count: comparisonCount
   } = useCardComparison(5);
 
-  // Charger la liste des séries au montage du composant
-  useEffect(() => {
-    // fetchSeries is stable enough for initial mount; disable exhaustive-deps here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchSeries();
-  }, []);
-
-  // Charger les extensions quand une série est sélectionnée
-  useEffect(() => {
-    if (selectedSerie) {
-      const shouldPrefill = !initialListingLoaded.current && selectedSerie === DEFAULT_SERIE_ID;
-      // fetchSetsBySerie has internal side-effects and we intentionally call it here
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      fetchSetsBySerie(selectedSerie, {
-        preferredSetId: shouldPrefill ? DEFAULT_SET_ID : '',
-        autoLoadCards: shouldPrefill
-      });
-      if (shouldPrefill) {
-        initialListingLoaded.current = true;
-      }
-    } else {
-      setSets([]);
-      setSelectedSet('');
-    }
-  }, [selectedSerie]);
-
-  const fetchSeries = async () => {
+  const fetchSeries = React.useCallback(async () => {
     try {
       setLoadingSeries(true);
       const data = await TCGdexService.getSeries();
@@ -97,9 +70,9 @@ const Cards = ({ showHeader = true }) => {
     } finally {
       setLoadingSeries(false);
     }
-  };
+  }, [selectedSerie]);
 
-  const fetchSetsBySerie = async (serieId, options = {}) => {
+  const fetchSetsBySerie = React.useCallback(async (serieId, options = {}) => {
     try {
       setLoadingSets(true);
       const data = await TCGdexService.getSetsBySerie(serieId);
@@ -128,9 +101,9 @@ const Cards = ({ showHeader = true }) => {
     } finally {
       setLoadingSets(false);
     }
-  };
+  }, [sets]);
 
-  const loadCardsForSet = async (serieIdValue, setIdValue, options = {}) => {
+  const loadCardsForSet = React.useCallback(async (serieIdValue, setIdValue, options = {}) => {
     if (!serieIdValue || !setIdValue) {
       if (!options.silent) {
         alert('Veuillez sélectionner une série et une extension');
@@ -153,7 +126,29 @@ const Cards = ({ showHeader = true }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sets]);
+
+  // Charger la liste des séries au montage du composant
+  useEffect(() => {
+    fetchSeries();
+  }, [fetchSeries]);
+
+  // Charger les extensions quand une série est sélectionnée
+  useEffect(() => {
+    if (selectedSerie) {
+      const shouldPrefill = !initialListingLoaded.current && selectedSerie === DEFAULT_SERIE_ID;
+      fetchSetsBySerie(selectedSerie, {
+        preferredSetId: shouldPrefill ? DEFAULT_SET_ID : '',
+        autoLoadCards: shouldPrefill
+      });
+      if (shouldPrefill) {
+        initialListingLoaded.current = true;
+      }
+    } else {
+      setSets([]);
+      setSelectedSet('');
+    }
+  }, [selectedSerie, fetchSetsBySerie]);
 
   const fetchCards = () => {
     loadCardsForSet(selectedSerie, selectedSet);

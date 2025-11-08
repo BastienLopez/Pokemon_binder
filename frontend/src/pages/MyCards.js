@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 import UserCardsService from '../services/userCardsService';
@@ -108,6 +108,7 @@ const MyCards = () => {
     } else {
       console.log('❌ Aucun ID de binder trouvé dans l\'URL');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search, user]);
 
   // function declaration hoisted so it can be used above in the effect
@@ -379,15 +380,6 @@ const MyCards = () => {
     } finally {
       setAddingToBinderLoading(false);
     }
-  };
-
-  const cancelBinderMode = () => {
-    setBinderMode(false);
-    setTargetBinderId(null);
-    setTargetBinder(null);
-    setSelectedCards([]);
-    // Retirer le paramètre ID de l'URL
-    navigate('/mes-cartes');
   };
 
   if (loading) {
