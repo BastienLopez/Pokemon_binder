@@ -102,7 +102,7 @@ const Cards = ({ showHeader = true }) => {
     } finally {
       setLoadingSets(false);
     }
-  }, [sets]);
+  }, [sets, loadCardsForSet]);
 
   const loadCardsForSet = React.useCallback(async (serieIdValue, setIdValue, options = {}) => {
     if (!serieIdValue || !setIdValue) {

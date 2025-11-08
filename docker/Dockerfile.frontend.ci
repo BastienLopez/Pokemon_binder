@@ -1,0 +1,30 @@
+# Dockerfile pour simuler le build CI de GitHub Pages
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copier package.json et package-lock.json
+COPY package*.json ./
+
+# Installer les dépendances (comme dans le CI)
+RUN npm ci
+
+# Copier le code source
+COPY . .
+
+# Variables d'environnement pour simuler GitHub Pages CI
+ENV CI=true
+ENV REACT_APP_STATIC_DATA=1
+ENV PUBLIC_URL=/Pokemon_binder
+
+# Build de production (comme GitHub Actions)
+RUN npm run build
+
+# Installer un serveur HTTP simple pour servir les fichiers statiques
+RUN npm install -g serve
+
+# Exposer le port
+EXPOSE 3000
+
+# Servir le build avec serve (simule GitHub Pages)
+CMD ["serve", "-s", "build", "-l", "3000"]
