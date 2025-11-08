@@ -4,8 +4,6 @@ Application web pour gérer sa collection de cartes Pokémon TCG avec système d
 
 ## Visuels
 
-
-
 <!-- Les images référencées sont stockées dans `frontend/public/img/` -->
 
 ![Profil utilisateur](frontend/public/img/profil.png)
@@ -42,6 +40,12 @@ cd Pokemon_binder
 ```bash
 cd docker
 docker-compose up --build
+```
+
+3. **Test deploy Github Page**
+```bash
+cd docker
+powershell -ExecutionPolicy Bypass -File test-build-only.ps1
 ```
 
 3. **Accéder à l'application**
