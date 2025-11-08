@@ -3,18 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <title>SPA Redirect</title>
-    <meta http-equiv="refresh" content="0; url=%2FPokemon_binder%2F" />
     <script>
-      // Redirect to index.html while preserving the path for client-side routing
+      // GitHub Pages SPA redirect - preserve path for React Router
       (function() {
         var l = window.location;
-        var repoBase = '/Pokemon_binder'; // adjust automatically if served at root
-        var base = l.pathname.includes(repoBase) ? repoBase : '';
-        var newUrl = base + '/index.html' + (l.search || '') + (l.hash || '');
-        window.location.replace(newUrl);
+        var repoBase = '/Pokemon_binder';
+        
+        // Extract the path after the repo base
+        var path = l.pathname.replace(repoBase, '');
+        
+        // Redirect to index.html with path as query parameter
+        var redirect = repoBase + '/?redirect=' + encodeURIComponent(path) + (l.search ? '&' + l.search.slice(1) : '');
+        
+        window.location.replace(redirect);
       })();
     </script>
   </head>
   <body></body>
-  </html>
+</html>
 

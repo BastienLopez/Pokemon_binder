@@ -86,7 +86,8 @@ const Cards = ({ showHeader = true }) => {
       setLoading(true);
       const data = await TCGdexService.getCardsBySet(setIdValue);
       setCards(data);
-      const sourceSets = options.setsSource || sets;
+      // Utiliser options.setsSource au lieu de sets pour éviter la dépendance
+      const sourceSets = options.setsSource || [];
       const selectedSetInfo = sourceSets.find((set) => set.id === setIdValue);
       setCurrentSet(selectedSetInfo || null);
     } catch (error) {
@@ -97,7 +98,7 @@ const Cards = ({ showHeader = true }) => {
     } finally {
       setLoading(false);
     }
-  }, [sets]);
+  }, []); // Pas de dépendance - utilise toujours setsSource passé en option
 
   const fetchSetsBySerie = React.useCallback(async (serieId, options = {}) => {
     try {
@@ -153,7 +154,7 @@ const Cards = ({ showHeader = true }) => {
   }, [selectedSerie, fetchSetsBySerie]);
 
   const fetchCards = () => {
-    loadCardsForSet(selectedSerie, selectedSet);
+    loadCardsForSet(selectedSerie, selectedSet, { setsSource: sets });
   };
 
   const addToCollection = async (card) => {
