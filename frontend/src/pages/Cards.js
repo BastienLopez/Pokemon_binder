@@ -73,6 +73,32 @@ const Cards = ({ showHeader = true }) => {
     }
   }, [selectedSerie]);
 
+  // Définir loadCardsForSet AVANT fetchSetsBySerie pour éviter use-before-define
+  const loadCardsForSet = React.useCallback(async (serieIdValue, setIdValue, options = {}) => {
+    if (!serieIdValue || !setIdValue) {
+      if (!options.silent) {
+        alert('Veuillez sélectionner une série et une extension');
+      }
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await TCGdexService.getCardsBySet(setIdValue);
+      setCards(data);
+      const sourceSets = options.setsSource || sets;
+      const selectedSetInfo = sourceSets.find((set) => set.id === setIdValue);
+      setCurrentSet(selectedSetInfo || null);
+    } catch (error) {
+      console.error('Erreur:', error);
+      if (!options.silent) {
+        alert('Impossible de charger les cartes de cette extension');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [sets]);
+
   const fetchSetsBySerie = React.useCallback(async (serieId, options = {}) => {
     try {
       setLoadingSets(true);
@@ -102,32 +128,7 @@ const Cards = ({ showHeader = true }) => {
     } finally {
       setLoadingSets(false);
     }
-  }, [sets, loadCardsForSet]);
-
-  const loadCardsForSet = React.useCallback(async (serieIdValue, setIdValue, options = {}) => {
-    if (!serieIdValue || !setIdValue) {
-      if (!options.silent) {
-        alert('Veuillez sélectionner une série et une extension');
-      }
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const data = await TCGdexService.getCardsBySet(setIdValue);
-      setCards(data);
-      const sourceSets = options.setsSource || sets;
-      const selectedSetInfo = sourceSets.find((set) => set.id === setIdValue);
-      setCurrentSet(selectedSetInfo || null);
-    } catch (error) {
-      console.error('Erreur:', error);
-      if (!options.silent) {
-        alert('Impossible de charger les cartes de cette extension');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [sets]);
+  }, [loadCardsForSet]);
 
   // Charger la liste des séries au montage du composant
   useEffect(() => {
