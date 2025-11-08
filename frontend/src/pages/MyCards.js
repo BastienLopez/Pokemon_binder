@@ -67,7 +67,6 @@ const MyCards = () => {
     openComparison,
     closeComparison,
     isCardSelected,
-    hasCards: hasComparisonCards,
     canCompare
   } = useCardComparison();
 
@@ -88,6 +87,7 @@ const MyCards = () => {
   }, [user]);
 
   // Détecter si on vient d'un binder
+  // fetchTargetBinder is declared below via function hoisting
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const binderId = searchParams.get('id_binder');
@@ -108,9 +108,10 @@ const MyCards = () => {
     } else {
       console.log('❌ Aucun ID de binder trouvé dans l\'URL');
     }
-  }, [location.search, user, fetchTargetBinder]);
+  }, [location.search, user]);
 
-  const fetchTargetBinder = useCallback(async (binderId) => {
+  // function declaration hoisted so it can be used above in the effect
+  async function fetchTargetBinder(binderId) {
     try {
       console.log('🔍 Tentative de récupération du binder avec ID:', binderId);
       const binder = await binderService.getBinderById(binderId);
@@ -120,13 +121,14 @@ const MyCards = () => {
       console.error('❌ Erreur lors de la récupération du binder:', error);
       console.log('🆔 ID du binder qui a échoué:', binderId);
       // Afficher une erreur et revenir au mode normal
-      setConfirmModal({
+      setConfirmModal((c) => ({
+        ...c,
         isOpen: true,
         title: 'Erreur',
         message: `Le binder avec l'ID ${binderId} n'existe pas ou n'est plus accessible. Vous êtes maintenant en mode collection normale.`,
         type: 'danger',
         onConfirm: () => {
-          setConfirmModal({ ...confirmModal, isOpen: false });
+          setConfirmModal((c2) => ({ ...c2, isOpen: false }));
           // Revenir au mode normal
           setBinderMode(false);
           setTargetBinderId(null);
@@ -134,9 +136,9 @@ const MyCards = () => {
           // Nettoyer l'URL
           navigate('/mes-cartes');
         }
-      });
+      }));
     }
-  }, [navigate]);
+  }
 
   const fetchUserCards = async () => {
     try {

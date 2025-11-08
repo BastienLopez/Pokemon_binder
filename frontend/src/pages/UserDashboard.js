@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate, useNavigate } from 'react-router-dom';
 import MyCardsSimple from './MyCardsSimple';
@@ -51,12 +51,41 @@ const UserDashboard = () => {
   );
   const [profileShareMessage, setProfileShareMessage] = useState('');
 
+  const loadUserCards = useCallback(async () => {
+    try {
+      const cards = await UserCardsService.getUserCards();
+      setUserCardsData(cards);
+      const totalValue = cards.reduce((sum, card) => sum + estimateCardValue(card), 0);
+      setCollectionValue(Number(totalValue.toFixed(2)));
+      if (!favoriteCardId && cards.length) {
+        setFavoriteCardId(cards[0].id || cards[0]._id || cards[0].card_id);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de la collection:', error);
+    }
+  }, [favoriteCardId]);
+
+  const loadBinders = useCallback(async () => {
+    try {
+      const binders = await binderService.getUserBinders();
+      const totalCards = binders.reduce((sum, binder) => sum + (binder.total_cards || 0), 0);
+      const publicCount = binders.filter((binder) => binder.is_public).length;
+      setBinderStats({
+        total: binders.length,
+        cards: totalCards,
+        publicCount
+      });
+    } catch (error) {
+      console.error('Erreur lors du chargement des binders:', error);
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       loadUserCards();
       loadBinders();
     }
-  }, [user]);
+  }, [user, loadUserCards, loadBinders]);
 
   useEffect(() => {
     localStorage.setItem('pb_profile_color', profileColor);
@@ -72,34 +101,7 @@ const UserDashboard = () => {
     }
   }, [favoriteCardId]);
 
-  const loadUserCards = async () => {
-    try {
-      const cards = await UserCardsService.getUserCards();
-      setUserCardsData(cards);
-      const totalValue = cards.reduce((sum, card) => sum + estimateCardValue(card), 0);
-      setCollectionValue(Number(totalValue.toFixed(2)));
-      if (!favoriteCardId && cards.length) {
-        setFavoriteCardId(cards[0].id || cards[0]._id || cards[0].card_id);
-      }
-    } catch (error) {
-      console.error('Erreur lors du chargement de la collection:', error);
-    }
-  };
-
-  const loadBinders = async () => {
-    try {
-      const binders = await binderService.getUserBinders();
-      const totalCards = binders.reduce((sum, binder) => sum + (binder.total_cards || 0), 0);
-      const publicCount = binders.filter((binder) => binder.is_public).length;
-      setBinderStats({
-        total: binders.length,
-        cards: totalCards,
-        publicCount
-      });
-    } catch (error) {
-      console.error('Erreur lors du chargement des binders:', error);
-    }
-  };
+  // loadUserCards and loadBinders are memoized above with useCallback
 
 
   const handleLogout = () => {

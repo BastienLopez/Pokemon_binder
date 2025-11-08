@@ -51,13 +51,14 @@ const Cards = ({ showHeader = true }) => {
     closeComparison,
     isCardSelected,
     canAddMore,
-    hasCards,
     canCompare,
     count: comparisonCount
   } = useCardComparison(5);
 
   // Charger la liste des séries au montage du composant
   useEffect(() => {
+    // fetchSeries is stable enough for initial mount; disable exhaustive-deps here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchSeries();
   }, []);
 
@@ -65,6 +66,8 @@ const Cards = ({ showHeader = true }) => {
   useEffect(() => {
     if (selectedSerie) {
       const shouldPrefill = !initialListingLoaded.current && selectedSerie === DEFAULT_SERIE_ID;
+      // fetchSetsBySerie has internal side-effects and we intentionally call it here
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       fetchSetsBySerie(selectedSerie, {
         preferredSetId: shouldPrefill ? DEFAULT_SET_ID : '',
         autoLoadCards: shouldPrefill

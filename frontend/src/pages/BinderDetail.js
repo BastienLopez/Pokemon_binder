@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import binderService from '../services/binderService';
-import TCGdexService from '../services/tcgdexService';
 import UserCardsService from '../services/userCardsService';
 import Notification from '../components/Notification';
 import DraggableCard from '../components/DraggableCard';
@@ -41,7 +40,6 @@ const BinderDetail = () => {
     openComparison,
     closeComparison,
     isCardSelected,
-    hasCards: hasComparisonCards,
     canCompare
   } = useCardComparison();
 
@@ -80,23 +78,7 @@ const BinderDetail = () => {
     };
   }, [handlers.onKeyDown]);
 
-  useEffect(() => {
-    loadBinder();
-  }, [id]);
-
-  useEffect(() => {
-    if (user) {
-      loadUserCards();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (binder) {
-      computeBinderInsights(binder);
-    }
-  }, [binder, userCollectionMap]);
-
-  const loadBinder = async () => {
+  const loadBinder = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -108,9 +90,13 @@ const BinderDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const loadUserCards = async () => {
+  useEffect(() => {
+    loadBinder();
+  }, [loadBinder]);
+
+  const loadUserCards = useCallback(async () => {
     try {
       const cards = await UserCardsService.getUserCards();
       const map = {};
@@ -124,9 +110,15 @@ const BinderDetail = () => {
     } catch (err) {
       console.error('Erreur lors du chargement de la collection utilisateur:', err);
     }
-  };
+  }, []);
 
-  const computeBinderInsights = (binderData) => {
+  useEffect(() => {
+    if (user) {
+      loadUserCards();
+    }
+  }, [user, loadUserCards]);
+
+  const computeBinderInsights = useCallback((binderData) => {
     if (!binderData?.pages) {
       setBinderInsights({ cards: 0, value: 0 });
       return;
@@ -147,7 +139,15 @@ const BinderDetail = () => {
       cards: cardCount,
       value: Number(totalValue.toFixed(2))
     });
-  };
+  }, [userCollectionMap]);
+
+  useEffect(() => {
+    if (binder) {
+      computeBinderInsights(binder);
+    }
+  }, [binder, computeBinderInsights]);
+
+  // moved and memoized above
 
   const copyBinderLink = async () => {
     if (!binder) return;
