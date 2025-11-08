@@ -101,9 +101,6 @@ const UserDashboard = () => {
     }
   };
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
 
   const handleLogout = () => {
     logout();
