@@ -52,6 +52,7 @@ const Cards = ({ showHeader = true }) => {
     isCardSelected,
     canAddMore,
     canCompare,
+    count: comparisonCount
   } = useCardComparison(5);
 
   const fetchSeries = React.useCallback(async () => {
