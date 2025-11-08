@@ -116,10 +116,13 @@ class BinderService:
             for idx, page_data in enumerate(binder_data.get("pages", []), start=1):
                 # S'assurer que page_number existe, sinon utiliser l'index
                 page_number = page_data.get("page_number", idx)
+                logger.info(f"Processing page {idx}: page_number from DB = {page_data.get('page_number')}, using {page_number}")
                 validated_pages.append(BinderPage(
                     page_number=page_number,
                     slots=page_data.get("slots", [])
                 ))
+            
+            logger.info(f"Validated {len(validated_pages)} pages for binder {binder_id}")
             
             binder_response = BinderResponse(
                 id=str(binder_data["_id"]),
@@ -135,6 +138,7 @@ class BinderService:
                 updated_at=binder_data["updated_at"]
             )
             
+            logger.info(f"Binder response created with {len(binder_response.pages)} pages")
             return binder_response
             
         except Exception as e:

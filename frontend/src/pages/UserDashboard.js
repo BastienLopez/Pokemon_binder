@@ -32,7 +32,14 @@ const UserDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [activeSection, setActiveSection] = useState('profile');
+  // Lire le hash de l'URL au démarrage pour maintenir la section active
+  const initialSection = () => {
+    const hash = window.location.hash.replace('#', '');
+    const validSections = ['profile', 'cards', 'listing', 'binders'];
+    return validSections.includes(hash) ? hash : 'profile';
+  };
+
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [userCardsData, setUserCardsData] = useState([]);
   const [collectionValue, setCollectionValue] = useState(0);
   const [binderStats, setBinderStats] = useState({ total: 0, cards: 0, publicCount: 0 });
@@ -100,6 +107,11 @@ const UserDashboard = () => {
       localStorage.setItem('pb_favorite_card', favoriteCardId);
     }
   }, [favoriteCardId]);
+
+  // Synchroniser le hash de l'URL avec la section active
+  useEffect(() => {
+    window.location.hash = activeSection;
+  }, [activeSection]);
 
   // loadUserCards and loadBinders are memoized above with useCallback
 
