@@ -111,6 +111,16 @@ class BinderService:
                             except Exception as e:
                                 logger.warning(f"Impossible de charger les métadonnées pour user_card_id {user_card_id}: {e}")
             
+            # Valider et reconstruire les pages pour s'assurer que page_number existe
+            validated_pages = []
+            for idx, page_data in enumerate(binder_data.get("pages", []), start=1):
+                # S'assurer que page_number existe, sinon utiliser l'index
+                page_number = page_data.get("page_number", idx)
+                validated_pages.append(BinderPage(
+                    page_number=page_number,
+                    slots=page_data.get("slots", [])
+                ))
+            
             binder_response = BinderResponse(
                 id=str(binder_data["_id"]),
                 user_id=str(binder_data["user_id"]),
@@ -118,8 +128,8 @@ class BinderService:
                 size=binder_data["size"],
                 description=binder_data.get("description"),
                 is_public=binder_data.get("is_public", False),
-                pages=binder_data.get("pages", []),
-                total_pages=len(binder_data.get("pages", [])),
+                pages=validated_pages,
+                total_pages=len(validated_pages),
                 total_cards=total_cards,
                 created_at=binder_data["created_at"],
                 updated_at=binder_data["updated_at"]

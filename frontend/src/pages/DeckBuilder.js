@@ -436,19 +436,19 @@ const DeckBuilder = () => {
             </span>
             Mon profil
           </button>
-          <button className="nav-item" onClick={() => navigate('/user#mes-cartes')}>
+          <button className="nav-item" onClick={() => navigate('/mes-cartes')}>
             <span className="nav-icon" aria-hidden="true">
               🃏
             </span>
             Mes cartes
           </button>
-          <button className="nav-item" onClick={() => navigate('/user#listing')}>
+          <button className="nav-item" onClick={() => navigate('/cartes')}>
             <span className="nav-icon" aria-hidden="true">
               📑
             </span>
             Listing des cartes
           </button>
-          <button className="nav-item" onClick={() => navigate('/user#mes-binders')}>
+          <button className="nav-item" onClick={() => navigate('/mes-binders')}>
             <span className="nav-icon" aria-hidden="true">
               📚
             </span>
@@ -525,7 +525,7 @@ const DeckBuilder = () => {
               <button
                 type="button"
                 className="btn btn-secondary deck-back-btn"
-                onClick={() => navigate('/user#mes-binders')}
+                onClick={() => navigate('/mes-binders')}
               >
                 ← Retour
               </button>
