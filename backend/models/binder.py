@@ -15,6 +15,10 @@ class CardSlot(BaseModel):
     position: int = Field(..., description="Position du slot (0-8 pour 3x3, 0-15 pour 4x4, 0-24 pour 5x5)")
     card_id: Optional[str] = Field(None, description="ID de la carte TCGdx placée dans ce slot")
     user_card_id: Optional[str] = Field(None, description="ID de la UserCard associée")
+    card_name: Optional[str] = Field(None, description="Nom de la carte (enrichi depuis user_cards)")
+    card_image: Optional[str] = Field(None, description="URL de l'image de la carte (enrichie depuis user_cards)")
+    set_name: Optional[str] = Field(None, description="Nom du set (enrichi depuis user_cards)")
+    rarity: Optional[str] = Field(None, description="Rareté de la carte (enrichie depuis user_cards)")
 
 class BinderPage(BaseModel):
     """Représente une page du binder"""

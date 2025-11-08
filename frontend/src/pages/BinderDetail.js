@@ -171,18 +171,35 @@ const BinderDetail = () => {
   };
 
   const getCardImageUrl = (slot) => {
+    console.log('getCardImageUrl - slot data:', slot);
+    
+    // Vérifier si card_image existe et est valide
     if (slot.card_image && !isPlaceholderImage(slot.card_image)) {
-      return TCGdexService.getHighQualityImageUrl({ image: slot.card_image });
+      console.log('slot.card_image found:', slot.card_image);
+      
+      // Si c'est une URL TCGdex sans /high.webp, l'ajouter
+      if (slot.card_image.includes('assets.tcgdex.net') && !slot.card_image.endsWith('.webp')) {
+        const fixedUrl = `${slot.card_image}/high.webp`;
+        console.log('Fixed TCGdex URL:', fixedUrl);
+        return fixedUrl;
+      }
+      
+      // Sinon retourner l'URL telle quelle
+      return slot.card_image;
     }
 
+    // Construire l'URL depuis card_id si card_image n'existe pas
     if (slot.card_id) {
       const [setId, number] = slot.card_id.split('-');
       if (setId && number) {
         const serie = setId.replace(/[0-9]+$/, '') || setId;
-        return `https://assets.tcgdex.net/fr/${serie}/${setId}/${number}/high.webp`;
+        const url = `https://assets.tcgdex.net/fr/${serie}/${setId}/${number}/high.webp`;
+        console.log('Constructed URL from card_id:', url);
+        return url;
       }
     }
 
+    console.log('Using PLACEHOLDER_IMAGE');
     return PLACEHOLDER_IMAGE;
   };
 
@@ -332,10 +349,30 @@ const BinderDetail = () => {
     return null;
   }
 
-  const currentPageData = binder.pages?.find((page) => page.number === currentPage);
+  console.log('DEBUG - Pages structure:', binder.pages);
+  console.log('DEBUG - currentPage value:', currentPage, 'type:', typeof currentPage);
+  
+  // Trouver la page en comparant page_number (backend) avec currentPage (frontend)
+  const currentPageData = binder.pages?.find((page) => {
+    console.log('DEBUG - Checking page:', page, 'page.page_number:', page.page_number, 'page.number:', page.number);
+    // Le backend utilise "page_number", pas "number"
+    return Number(page.page_number || page.number) === Number(currentPage);
+  });
+  
   const gridSize = binder.size?.split('x') || ['3', '3'];
   const rows = Number(gridSize[0]);
   const cols = Number(gridSize[1]);
+
+  console.log('BinderDetail - Render data:', {
+    binder: binder,
+    currentPage,
+    currentPageData,
+    pages: binder.pages,
+    slotsCount: currentPageData?.slots?.length,
+    gridSize: binder.size,
+    rows,
+    cols
+  });
 
   return (
     <div className="user-dashboard">
@@ -372,49 +409,55 @@ const BinderDetail = () => {
                 gridTemplateRows: `repeat(${rows}, 1fr)`
               }}
             >
-              {currentPageData?.slots.map((slot, index) => {
-                const enrichedSlot = { ...slot, page: currentPage, position: index };
-                const isDropTarget =
-                  dragState.dropTarget &&
-                  dragState.dropTarget.page === currentPage &&
-                  dragState.dropTarget.position === index;
+              {!currentPageData ? (
+                <div className="empty-state">Aucune page trouvée</div>
+              ) : !currentPageData.slots ? (
+                <div className="empty-state">Aucun slot sur cette page</div>
+              ) : (
+                currentPageData.slots.map((slot, index) => {
+                  const enrichedSlot = { ...slot, page: currentPage, position: index };
+                  const isDropTarget =
+                    dragState.dropTarget &&
+                    dragState.dropTarget.page === currentPage &&
+                    dragState.dropTarget.position === index;
 
-                return (
-                  <DroppableSlot
-                    key={index}
-                    slot={enrichedSlot}
-                    isDropTarget={isDropTarget}
-                    onDragOver={handlers.onDragOver}
-                    onDragEnter={handlers.onDragEnter}
-                    onDragLeave={handlers.onDragLeave}
-                    onDrop={handlers.onDrop}
-                    onClick={() => slot.card_id && openCardDetail(slot)}
-                  >
-                    {slot.card_id && (
-                      <DraggableCard
-                        card={{
-                          card_id: slot.card_id,
-                          card_name: slot.card_name || `Carte ${slot.card_id}`,
-                          user_card_id: slot.user_card_id
-                        }}
-                        slot={enrichedSlot}
-                        imageUrl={getCardImageUrl(slot)}
-                        isDragging={
-                          dragState.isDragging &&
-                          dragState.draggedSlot?.page === currentPage &&
-                          dragState.draggedSlot?.position === index
-                        }
-                        onDragStart={handlers.onDragStart}
-                        onDragEnd={handlers.onDragEnd}
-                        onRemove={handleRemoveCard}
-                        onCardClick={() => openCardDetail(slot)}
-                        onAddToComparison={handleAddToComparison}
-                        isSelectedForComparison={isCardSelected(slot.card_id)}
-                      />
-                    )}
-                  </DroppableSlot>
-                );
-              })}
+                  return (
+                    <DroppableSlot
+                      key={index}
+                      slot={enrichedSlot}
+                      isDropTarget={isDropTarget}
+                      onDragOver={handlers.onDragOver}
+                      onDragEnter={handlers.onDragEnter}
+                      onDragLeave={handlers.onDragLeave}
+                      onDrop={handlers.onDrop}
+                      onClick={() => slot.card_id && openCardDetail(slot)}
+                    >
+                      {slot.card_id && (
+                        <DraggableCard
+                          card={{
+                            card_id: slot.card_id,
+                            card_name: slot.card_name || `Carte ${slot.card_id}`,
+                            user_card_id: slot.user_card_id
+                          }}
+                          slot={enrichedSlot}
+                          imageUrl={getCardImageUrl(slot)}
+                          isDragging={
+                            dragState.isDragging &&
+                            dragState.draggedSlot?.page === currentPage &&
+                            dragState.draggedSlot?.position === index
+                          }
+                          onDragStart={handlers.onDragStart}
+                          onDragEnd={handlers.onDragEnd}
+                          onRemove={handleRemoveCard}
+                          onCardClick={() => openCardDetail(slot)}
+                          onAddToComparison={handleAddToComparison}
+                          isSelectedForComparison={isCardSelected(slot.card_id)}
+                        />
+                      )}
+                    </DroppableSlot>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

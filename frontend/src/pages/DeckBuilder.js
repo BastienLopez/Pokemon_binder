@@ -74,17 +74,44 @@ const resolveCardId = (card = {}) => {
 };
 
 const getCardImage = (card) => {
-  const url =
-    card?.card_image ||
-    card?.image ||
-    card?.imageUrl ||
-    card?.images?.large ||
-    card?.images?.small;
+  if (!card) return PLACEHOLDER_IMAGE;
+  
+  console.log('DeckBuilder - getCardImage for card:', card.card_name || card.name, card);
+  
+  // Essayer d'abord card_image
+  let url = card?.card_image || card?.image || card?.imageUrl;
+
+  // Si c'est une URL TCGdex incomplète, l'ajouter
+  if (url && url.includes('assets.tcgdex.net') && !url.endsWith('.webp')) {
+    url = `${url}/high.webp`;
+    console.log('Fixed TCGdex URL:', url);
+    return url;
+  }
+
+  // Si pas d'URL directe, essayer de construire depuis card_id
+  if (!url || isPlaceholderImage(url)) {
+    if (card.card_id) {
+      const [setId, number] = card.card_id.split('-');
+      if (setId && number) {
+        const serie = setId.replace(/[0-9]+$/, '') || setId;
+        url = `https://assets.tcgdex.net/fr/${serie}/${setId}/${number}/high.webp`;
+        console.log('Constructed URL from card_id:', url);
+        return url;
+      }
+    }
+  }
+
+  // Si on a une URL d'images large/small, vérifier qu'elle est valide
+  if (url && (card?.images?.large || card?.images?.small)) {
+    url = card.images.large || card.images.small;
+  }
 
   if (!url || isPlaceholderImage(url)) {
+    console.log('Using placeholder for card');
     return PLACEHOLDER_IMAGE;
   }
 
+  console.log('Using URL:', url);
   return url;
 };
 
@@ -336,16 +363,28 @@ const DeckBuilder = () => {
   }, [deckCards]);
 
   const availableTypes = useMemo(() => {
+    console.log('Computing availableTypes from userCards:', userCards.length, 'cards');
     const typeSet = new Set();
     userCards.forEach((card) => {
-      (card.types || card.card_types || []).forEach((type) => typeSet.add(type.toLowerCase()));
+      const types = card.types || card.card_types || [];
+      if (Array.isArray(types)) {
+        types.forEach((type) => {
+          if (type) {
+            const normalizedType = String(type).toLowerCase();
+            console.log('Found type:', normalizedType, 'from card:', card.card_name);
+            typeSet.add(normalizedType);
+          }
+        });
+      }
     });
+    console.log('Available types:', Array.from(typeSet));
     return typeSet;
   }, [userCards]);
 
   const filteredUserCards = useMemo(() => {
     const lowerSearch = searchTerm.trim().toLowerCase();
-    return userCards.filter((card) => {
+    console.log('Filtering with typeFilter:', typeFilter);
+    const filtered = userCards.filter((card) => {
       const identifier = resolveCardId(card);
       if (!identifier) {
         return false;
@@ -360,9 +399,19 @@ const DeckBuilder = () => {
       }
 
       if (typeFilter === 'all') return true;
-      const types = (card.types || card.card_types || []).map((type) => type.toLowerCase());
-      return types.includes(typeFilter);
+      const types = card.types || card.card_types || [];
+      if (!Array.isArray(types)) {
+        console.log('Card has no types array:', card.card_name);
+        return false;
+      }
+      const hasType = types.some(type => String(type).toLowerCase() === typeFilter);
+      if (typeFilter !== 'all') {
+        console.log('Card:', card.card_name, 'types:', types, 'matches filter:', hasType);
+      }
+      return hasType;
     });
+    console.log('Filtered cards:', filtered.length, 'out of', userCards.length);
+    return filtered;
   }, [userCards, searchTerm, typeFilter]);
 
   if (!user) {

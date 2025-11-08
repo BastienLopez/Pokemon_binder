@@ -88,12 +88,28 @@ class BinderService:
             if not binder_data:
                 return None
             
-            # Compter les cartes
+            # Enrichir les slots avec les métadonnées des cartes
+            user_cards_collection = self.database.user_cards
             total_cards = 0
+            
             for page in binder_data.get("pages", []):
                 for slot in page.get("slots", []):
                     if slot.get("card_id"):
                         total_cards += 1
+                        # Récupérer les métadonnées de la carte depuis user_cards
+                        user_card_id = slot.get("user_card_id")
+                        if user_card_id:
+                            try:
+                                user_card = await user_cards_collection.find_one({
+                                    "_id": ObjectId(user_card_id)
+                                })
+                                if user_card:
+                                    slot["card_name"] = user_card.get("card_name", "")
+                                    slot["card_image"] = user_card.get("card_image", "")
+                                    slot["set_name"] = user_card.get("set_name", "")
+                                    slot["rarity"] = user_card.get("rarity", "")
+                            except Exception as e:
+                                logger.warning(f"Impossible de charger les métadonnées pour user_card_id {user_card_id}: {e}")
             
             binder_response = BinderResponse(
                 id=str(binder_data["_id"]),

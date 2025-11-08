@@ -143,12 +143,20 @@ const MyBinders = () => {
             Organisez votre collection de cartes Pokémon en classeurs virtuels
           </p>
         </div>
-        <button 
-          className="btn btn-primary create-btn"
-          onClick={() => setIsCreateModalOpen(true)}
-        >
-          Créer un binder
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            className="btn btn-secondary"
+            onClick={() => navigate('/deck-builder')}
+          >
+            🎴 Créer un deck
+          </button>
+          <button 
+            className="btn btn-primary create-btn"
+            onClick={() => setIsCreateModalOpen(true)}
+          >
+            Créer un binder
+          </button>
+        </div>
       </div>
 
       {!binders || binders.length === 0 ? (

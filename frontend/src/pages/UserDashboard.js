@@ -142,13 +142,17 @@ const UserDashboard = () => {
     }
   };
 
+  // Moved hooks outside of conditional rendering
   const profileUrl = useMemo(() => {
+    if (!user) return '';
     const basePath = process.env.PUBLIC_URL || '';
     return `${window.location.origin}${basePath}/user?id=${user.id}`;
   }, [user]);
 
   const favoriteCard = useMemo(() => {
-    return userCardsData.find((card) => String(card.id || card.card_id) === String(favoriteCardId));
+    if (!userCardsData.length || !favoriteCardId) return null;
+    // Le favoriteCardId stocke l'id du document MongoDB
+    return userCardsData.find((card) => String(card.id || card._id) === String(favoriteCardId));
   }, [favoriteCardId, userCardsData]);
 
   const renderProfileSection = () => (
@@ -259,16 +263,48 @@ const UserDashboard = () => {
               {favoriteCard && (
                 <div className="favorite-card">
                   <img
-                    src={favoriteCard.card_image}
-                    alt={favoriteCard.card_name}
+                    src={(() => {
+                      console.log('Favorite card data:', favoriteCard);
+                      
+                      // Utiliser card_image si disponible
+                      if (favoriteCard.card_image && !favoriteCard.card_image.includes('data:image')) {
+                        console.log('Using card_image:', favoriteCard.card_image);
+                        
+                        // Si c'est une URL TCGdex sans /high.webp, l'ajouter
+                        if (favoriteCard.card_image.includes('assets.tcgdex.net') && !favoriteCard.card_image.endsWith('.webp')) {
+                          const fixedUrl = `${favoriteCard.card_image}/high.webp`;
+                          console.log('Fixed URL:', fixedUrl);
+                          return fixedUrl;
+                        }
+                        
+                        return favoriteCard.card_image;
+                      }
+                      
+                      // Construire l'URL depuis card_id si card_image n'existe pas
+                      if (favoriteCard.card_id) {
+                        console.log('Building URL from card_id:', favoriteCard.card_id);
+                        const [setId, number] = favoriteCard.card_id.split('-');
+                        if (setId && number) {
+                          const serie = setId.replace(/[0-9]+$/, '') || setId;
+                          const url = `https://assets.tcgdex.net/fr/${serie}/${setId}/${number}/high.webp`;
+                          console.log('Constructed URL:', url);
+                          return url;
+                        }
+                      }
+                      
+                      console.log('Using placeholder');
+                      return PLACEHOLDER_IMAGE;
+                    })()}
+                    alt={favoriteCard.card_name || 'Carte'}
                     onError={(event) => {
+                      console.error('Image load error for:', event.target.src);
                       event.target.src = PLACEHOLDER_IMAGE;
                       event.target.alt = 'Image non disponible';
                     }}
                   />
                   <div>
-                    <h4>{favoriteCard.card_name}</h4>
-                    <p>{favoriteCard.set_name}</p>
+                    <h4>{favoriteCard.card_name || favoriteCard.name}</h4>
+                    <p>{favoriteCard.set_name || 'Set inconnu'}</p>
                     {favoriteCard.rarity && <p>{favoriteCard.rarity}</p>}
                     <p>{formatEuro(estimateCardValue(favoriteCard))}</p>
                   </div>
@@ -337,6 +373,13 @@ const UserDashboard = () => {
           >
             <span className="nav-icon" aria-hidden="true">{'\u{1F4DA}'}</span>
             Mes Binders
+          </button>
+          <button
+            className="nav-item"
+            onClick={() => navigate('/deck-builder')}
+          >
+            <span className="nav-icon" aria-hidden="true">{'\u{1F3B4}'}</span>
+            Créer un deck
           </button>
         </nav>
 

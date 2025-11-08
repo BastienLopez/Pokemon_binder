@@ -38,7 +38,12 @@
     ],
     "moduleNameMapper": {
       "^axios$": "axios/dist/node/axios.cjs"
-    }
+    },
+    "testMatch": [
+      "**/__tests__/**/*.[jt]s?(x)",
+      "!**/src/**/*.test.[jt]s?(x)",
+      "!**/src/**/*.spec.[jt]s?(x)"
+    ]
   },
   "browserslist": {
     "production": [

@@ -1,6 +1,6 @@
 # Tests - Pokemon TCG Binder
 
-Ce dossier contient tous les tests pour le projet Pokemon TCG Binder.
+Ce dossier contient **TOUS** les tests du projet Pokemon TCG Binder. Aucun test n'est présent ailleurs dans le projet.
 
 ## 📁 Structure
 
@@ -9,21 +9,60 @@ tests/
 ├── __init__.py              # Package tests
 ├── conftest.py              # Configuration pytest
 ├── requirements.txt         # Dépendances de test
-├── backend/                 # Tests backend
+├── backend/                 # Tests backend (API, services, modèles)
 │   ├── __init__.py
 │   ├── test_api.py         # Tests API principales
 │   ├── test_auth.py        # Tests authentification
 │   ├── test_models.py      # Tests modèles Pydantic
+│   ├── test_binder_drag_drop_api_simple.py
 │   └── test_utils.py       # Tests utilitaires
-├── frontend/                # Tests frontend
-│   └── test_react_basic.py # Tests React basiques
+├── frontend/                # Tests frontend (Pages, composants)
+│   ├── __init__.py
+│   ├── README.md
+│   ├── test_user_dashboard.py
+│   ├── test_deck_builder.py
+│   ├── test_binder_detail.py
+│   ├── test_my_binders.py
+│   ├── test_cards_page.py
+│   └── test_my_cards_complete.py
 └── integration/             # Tests d'intégration
     └── test_e2e.py         # Tests end-to-end
 ```
 
+## ⚠️ Important
+
+**Aucun fichier `.test.js` ne doit exister dans `frontend/src/`**
+
+Tous les tests sont centralisés ici et utilisent pytest. La configuration Jest dans le frontend ignore les tests :
+```bash
+cd frontend
+npm test -- --watchAll=false --passWithNoTests
+# Résultat attendu : "No tests found, exiting with code 0"
+```
+
 ## 🚀 Lancement des tests
 
-### Option 1: Script Python (Recommandé)
+### Tous les tests
+```bash
+pytest tests/ -v
+```
+
+### Tests backend uniquement
+```bash
+pytest tests/backend/ -v
+```
+
+### Tests frontend uniquement
+```bash
+pytest tests/frontend/ -v
+```
+
+### Tests d'intégration uniquement
+```bash
+pytest tests/integration/ -v
+```
+
+### Option: Script Python
 ```bash
 python run_tests.py
 ```
