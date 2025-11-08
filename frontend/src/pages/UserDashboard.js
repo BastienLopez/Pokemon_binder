@@ -141,8 +141,8 @@ const UserDashboard = () => {
       setProfileShareMessage('Impossible de copier le lien');
     }
   };
-
-  // Moved hooks outside of conditional rendering
+  // Hooks must be called unconditionally and in the same order on every render.
+  // We compute values here before any conditional return so ESLint rule-of-hooks is satisfied.
   const profileUrl = useMemo(() => {
     if (!user) return '';
     const basePath = process.env.PUBLIC_URL || '';
@@ -154,6 +154,11 @@ const UserDashboard = () => {
     // Le favoriteCardId stocke l'id du document MongoDB
     return userCardsData.find((card) => String(card.id || card._id) === String(favoriteCardId));
   }, [favoriteCardId, userCardsData]);
+
+  // Early return must come AFTER hooks so hooks order is preserved
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   const renderProfileSection = () => (
     <div className="profile-section">

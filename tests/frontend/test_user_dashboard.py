@@ -2,6 +2,10 @@
 Tests pour le composant UserDashboard
 """
 import pytest
+
+# Certaines machines (runner CI minimal) n'ont pas selenium installé.
+# Pour éviter une erreur d'import bloquante, on skippe le module si absent.
+pytest.importorskip("selenium")
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
