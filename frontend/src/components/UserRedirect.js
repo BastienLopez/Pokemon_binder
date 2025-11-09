@@ -18,7 +18,7 @@ const UserRedirect = () => {
   }
 
   if (user && user.id) {
-    return <Navigate to={`/user?id=${user.id}`} replace />;
+    return <Navigate to="/user" replace />;
   }
 
   return <Navigate to="/login" replace />;

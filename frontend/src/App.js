@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import DashboardLayout from './components/DashboardLayout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -43,48 +44,22 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/cartes" element={<Cards />} />
-            
-            {/* Routes protégées */}
-            <Route 
-              path="/user" 
+
+            {/* Routes prot?g?es */}
+            <Route
               element={
                 <ProtectedRoute>
-                  <UserDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/mes-cartes" 
-              element={
-                <ProtectedRoute>
-                  <MyCards />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/mes-binders" 
-              element={
-                <ProtectedRoute>
-                  <MyBinders />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/binder/:id" 
-              element={
-                <ProtectedRoute>
-                  <BinderDetail />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/deck-builder"
-              element={
-                <ProtectedRoute>
-                  <DeckBuilder />
+                  <DashboardLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route path="/user" element={<UserDashboard />} />
+              <Route path="/mes-cartes" element={<MyCards />} />
+              <Route path="/listing" element={<Cards showHeader={false} />} />
+              <Route path="/mes-binders" element={<MyBinders />} />
+              <Route path="/binder/:id" element={<BinderDetail />} />
+              <Route path="/deck-builder" element={<DeckBuilder />} />
+            </Route>
           </Routes>
         </div>
       </Router>

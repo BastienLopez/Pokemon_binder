@@ -38,7 +38,7 @@ const Login = () => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      navigate(`/user?id=${result.userId}`);
+      navigate('/user');
     } else {
       setError(result.error);
     }

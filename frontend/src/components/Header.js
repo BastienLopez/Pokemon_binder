@@ -22,7 +22,7 @@ const Header = () => {
             
             {isAuthenticated ? (
               <>
-                <Link to={`/cartes?id=${user?.id}`} className="nav-link">Cartes</Link>
+                <Link to="/listing" className="nav-link">Cartes</Link>
                 <Link to="/mes-cartes" className="nav-link">Mes Cartes</Link>
                 <Link to="/mes-binders" className="nav-link">Mes Binders</Link>
                 <div className="user-menu">

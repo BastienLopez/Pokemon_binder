@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Navigate, useNavigate } from 'react-router-dom';
-import MyCardsSimple from './MyCardsSimple';
-import MyBinders from './MyBinders';
-import Cards from './Cards';
 import UserCardsService from '../services/userCardsService';
 import binderService from '../services/binderService';
 import { estimateCardValue, formatEuro } from '../utils/value';
@@ -21,25 +18,16 @@ const DEFAULT_SOCIAL_LINKS = {
 const COLOR_OPTIONS = ['#6c5ce7', '#e84393', '#00b894', '#0984e3', '#f0932b'];
 
 const SOCIAL_PLATFORMS = [
-  { key: 'twitter', label: 'Twitter', placeholder: '@AshKetchum', icon: '🐦' },
-  { key: 'instagram', label: 'Instagram', placeholder: '@ash_trainer', icon: '📸' },
-  { key: 'youtube', label: 'YouTube', placeholder: 'Chaîne / pseudo', icon: '▶️' },
-  { key: 'twitch', label: 'Twitch', placeholder: 'streamer', icon: '🎮' },
-  { key: 'tiktok', label: 'TikTok', placeholder: '@pokecards', icon: '🎵' }
+  { key: 'twitter', label: 'Twitter', placeholder: '@AshKetchum', icon: '\u{1F426}' },
+  { key: 'instagram', label: 'Instagram', placeholder: '@ash_trainer', icon: '\u{1F4F8}' },
+  { key: 'youtube', label: 'YouTube', placeholder: 'Chaine / pseudo', icon: '\u{25B6}\u{FE0F}' },
+  { key: 'twitch', label: 'Twitch', placeholder: 'streamer', icon: '\u{1F3AE}' },
+  { key: 'tiktok', label: 'TikTok', placeholder: '@pokecards', icon: '\u{1F3B5}' }
 ];
 
 const UserDashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  // Lire le hash de l'URL au démarrage pour maintenir la section active
-  const initialSection = () => {
-    const hash = window.location.hash.replace('#', '');
-    const validSections = ['profile', 'cards', 'listing', 'binders'];
-    return validSections.includes(hash) ? hash : 'profile';
-  };
-
-  const [activeSection, setActiveSection] = useState(initialSection);
   const [userCardsData, setUserCardsData] = useState([]);
   const [collectionValue, setCollectionValue] = useState(0);
   const [binderStats, setBinderStats] = useState({ total: 0, cards: 0, publicCount: 0 });
@@ -108,19 +96,6 @@ const UserDashboard = () => {
     }
   }, [favoriteCardId]);
 
-  // Synchroniser le hash de l'URL avec la section active
-  useEffect(() => {
-    window.location.hash = activeSection;
-  }, [activeSection]);
-
-  // loadUserCards and loadBinders are memoized above with useCallback
-
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   const handleColorSelection = (color) => {
     setProfileColor(color);
   };
@@ -145,33 +120,32 @@ const UserDashboard = () => {
         document.execCommand('copy');
         document.body.removeChild(tempInput);
       }
-      setProfileShareMessage('Lien copié dans le presse-papier ✅');
+      setProfileShareMessage('Lien copie dans le presse-papier !');
       setTimeout(() => setProfileShareMessage(''), 2500);
     } catch (error) {
       console.error('Erreur lors de la copie du lien:', error);
       setProfileShareMessage('Impossible de copier le lien');
     }
   };
-  // Hooks must be called unconditionally and in the same order on every render.
-  // We compute values here before any conditional return so ESLint rule-of-hooks is satisfied.
+
   const profileUrl = useMemo(() => {
-    if (!user) return '';
     const basePath = process.env.PUBLIC_URL || '';
-    return `${window.location.origin}${basePath}/user?id=${user.id}`;
-  }, [user]);
+    if (typeof window === 'undefined') {
+      return `${basePath}/user`;
+    }
+    return `${window.location.origin}${basePath}/user`;
+  }, []);
 
   const favoriteCard = useMemo(() => {
     if (!userCardsData.length || !favoriteCardId) return null;
-    // Le favoriteCardId stocke l'id du document MongoDB
     return userCardsData.find((card) => String(card.id || card._id) === String(favoriteCardId));
   }, [favoriteCardId, userCardsData]);
 
-  // Early return must come AFTER hooks so hooks order is preserved
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  const renderProfileSection = () => (
+  return (
     <div className="profile-section">
       <div className="profile-header" style={{ borderColor: profileColor }}>
         <div className="profile-info">
@@ -196,7 +170,7 @@ const UserDashboard = () => {
             <strong>{binderStats.total}</strong>
           </div>
           <div className="summary-card">
-            <span>Valeur estimée</span>
+            <span>Valeur estimee</span>
             <strong>{formatEuro(collectionValue)}</strong>
           </div>
         </div>
@@ -204,22 +178,22 @@ const UserDashboard = () => {
 
       <div className="profile-grid">
         <div className="profile-panel">
-          <h3>Résumé global</h3>
+          <h3>Resume global</h3>
           <p>
-            Vous gérez {userCardsData.length} cartes uniques réparties dans {binderStats.total} binder(s).
+            Vous gerez {userCardsData.length} cartes uniques reparties dans {binderStats.total} binder(s).
             {binderStats.publicCount > 0 && ` ${binderStats.publicCount} binder(s) sont publics.`}
           </p>
           <ul>
             <li>Total de cartes : {userCardsData.reduce((sum, card) => sum + (card.quantity || 0), 0)}</li>
             <li>Cartes dans des binders : {binderStats.cards}</li>
-            <li>Valeur estimée : {formatEuro(collectionValue)}</li>
+            <li>Valeur estimee : {formatEuro(collectionValue)}</li>
           </ul>
         </div>
 
         <div className="profile-panel">
           <div className="panel-header">
             <div>
-              <h3>Style & réseaux</h3>
+              <h3>Style & reseaux</h3>
               <p>Personnalisez votre profil et partagez vos liens.</p>
             </div>
           </div>
@@ -260,7 +234,7 @@ const UserDashboard = () => {
         <div className="profile-panel">
           <h3>Ta carte favorite</h3>
           {userCardsData.length === 0 ? (
-            <p>Ajoute des cartes à ta collection pour sélectionner un favori.</p>
+            <p>Ajoute des cartes a ta collection pour selectionner un favori.</p>
           ) : (
             <>
               <select
@@ -280,40 +254,25 @@ const UserDashboard = () => {
                 <div className="favorite-card">
                   <img
                     src={(() => {
-                      console.log('Favorite card data:', favoriteCard);
-                      
-                      // Utiliser card_image si disponible
                       if (favoriteCard.card_image && !favoriteCard.card_image.includes('data:image')) {
-                        console.log('Using card_image:', favoriteCard.card_image);
-                        
-                        // Si c'est une URL TCGdex sans /high.webp, l'ajouter
                         if (favoriteCard.card_image.includes('assets.tcgdex.net') && !favoriteCard.card_image.endsWith('.webp')) {
-                          const fixedUrl = `${favoriteCard.card_image}/high.webp`;
-                          console.log('Fixed URL:', fixedUrl);
-                          return fixedUrl;
+                          return `${favoriteCard.card_image}/high.webp`;
                         }
-                        
                         return favoriteCard.card_image;
                       }
-                      
-                      // Construire l'URL depuis card_id si card_image n'existe pas
+
                       if (favoriteCard.card_id) {
-                        console.log('Building URL from card_id:', favoriteCard.card_id);
                         const [setId, number] = favoriteCard.card_id.split('-');
                         if (setId && number) {
                           const serie = setId.replace(/[0-9]+$/, '') || setId;
-                          const url = `https://assets.tcgdex.net/fr/${serie}/${setId}/${number}/high.webp`;
-                          console.log('Constructed URL:', url);
-                          return url;
+                          return `https://assets.tcgdex.net/fr/${serie}/${setId}/${number}/high.webp`;
                         }
                       }
-                      
-                      console.log('Using placeholder');
+
                       return PLACEHOLDER_IMAGE;
                     })()}
                     alt={favoriteCard.card_name || 'Carte'}
                     onError={(event) => {
-                      console.error('Image load error for:', event.target.src);
                       event.target.src = PLACEHOLDER_IMAGE;
                       event.target.alt = 'Image non disponible';
                     }}
@@ -328,88 +287,6 @@ const UserDashboard = () => {
               )}
             </>
           )}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'profile':
-        return renderProfileSection();
-      case 'cards':
-        return <MyCardsSimple />;
-      case 'listing':
-        return <Cards showHeader={false} />;
-      case 'binders':
-        return <MyBinders />;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="user-dashboard">
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2>Pokémon TCG Binder</h2>
-          <div className="user-info">
-            <div className="user-avatar">
-              {user.username?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            <span className="username">{user.username}</span>
-          </div>
-        </div>
-
-        <nav className="sidebar-nav">
-          <button
-            className={`nav-item ${activeSection === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveSection('profile')}
-          >
-            <span className="nav-icon" aria-hidden="true">{'\u{1F4D1}'}</span>
-            Mon Profil
-          </button>
-          <button
-            className={`nav-item ${activeSection === 'cards' ? 'active' : ''}`}
-            onClick={() => setActiveSection('cards')}
-          >
-            <span className="nav-icon" aria-hidden="true">{'\u{1F0CF}'}</span>
-            Mes Cartes
-          </button>
-          <button
-            className={`nav-item ${activeSection === 'listing' ? 'active' : ''}`}
-            onClick={() => setActiveSection('listing')}
-          >
-            <span className="nav-icon" aria-hidden="true">{'\u{1F4DC}'}</span>
-            Listing des Cartes
-          </button>
-          <button
-            className={`nav-item ${activeSection === 'binders' ? 'active' : ''}`}
-            onClick={() => setActiveSection('binders')}
-          >
-            <span className="nav-icon" aria-hidden="true">{'\u{1F4DA}'}</span>
-            Mes Binders
-          </button>
-          <button
-            className="nav-item"
-            onClick={() => navigate('/deck-builder')}
-          >
-            <span className="nav-icon" aria-hidden="true">{'\u{1F3B4}'}</span>
-            Créer un deck
-          </button>
-        </nav>
-
-        <div className="sidebar-footer">
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="nav-icon" aria-hidden="true">{'\u{1F6AA}'}</span>
-            Déconnexion
-          </button>
-        </div>
-      </div>
-
-      <div className="main-content">
-        <div className="content-container">
-          {renderContent()}
         </div>
       </div>
     </div>
